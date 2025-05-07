@@ -1,0 +1,24 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Archivos de documentación
+DEVELOPMENT_NOTES.md
+ROADMAP.md
+Challenge_PHPa4f6b408-5b85-4f37-92f6-cdad410cd4fc.pdf
