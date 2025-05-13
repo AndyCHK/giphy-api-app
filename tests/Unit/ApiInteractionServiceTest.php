@@ -30,47 +30,109 @@ class ApiInteractionServiceTest extends TestCase
         parent::tearDown();
     }
 
-    public function testRegisterInteraction()
+    /** @test */
+    public function it_registers_interaction_in_repository()
     {
-        // Configure mock expectations
-        $this->mockRepository->shouldReceive('save')
-            ->once()
-            ->with(Mockery::type(ApiInteraction::class))
-            ->andReturn(null);
+        // Preparar
+        $userId = '123';
+        $service = 'gifs/search';
+        $requestBody = '{"query":"cats"}';
+        $responseCode = 200;
+        $responseBody = '{"success":true,"data":[]}';
+        $ipAddress = '127.0.0.1';
 
-        // Act
-        $this->service->registerInteraction(
-            'user-123',
-            'gifs/search',
-            '{"query":"cat"}',
-            200,
-            '{"data":[]}',
-            '127.0.0.1'
+        // Expectativas
+        $this->mockRepository->shouldReceive('registerInteraction')
+            ->once()
+            ->with(
+                $userId,
+                $service,
+                $requestBody,
+                $responseCode,
+                $responseBody,
+                $ipAddress
+            )
+            ->andReturn(true);
+
+        // Ejecutar
+        $result = $this->service->registerInteraction(
+            $userId,
+            $service,
+            $requestBody,
+            $responseCode,
+            $responseBody,
+            $ipAddress
         );
-        
-        // No necesitamos assert porque el mock verifica que se llama al método save una vez
-        $this->assertTrue(true);
+
+        // Verificar
+        $this->assertTrue($result);
     }
-    
-    public function testRegisterInteractionWithNullValues()
-    {
-        // Configure mock expectations
-        $this->mockRepository->shouldReceive('save')
-            ->once()
-            ->with(Mockery::type(ApiInteraction::class))
-            ->andReturn(null);
 
-        // Act - registrar una interacción con valores nulos para comprobar que maneja correctamente
-        $this->service->registerInteraction(
-            null, // Usuario no autenticado
-            'gifs/search',
-            null, // Sin cuerpo de petición
-            200,
-            null, // Sin cuerpo de respuesta
-            '127.0.0.1'
+    /** @test */
+    public function it_handles_null_user_id()
+    {
+        // Preparar
+        $userId = null;
+        $service = 'auth/login';
+        $requestBody = '{"email":"test@example.com","password":"****"}';
+        $responseCode = 200;
+        $responseBody = '{"success":true,"data":{"token":"..."}}';
+        $ipAddress = '127.0.0.1';
+
+        // Expectativas
+        $this->mockRepository->shouldReceive('registerInteraction')
+            ->once()
+            ->with(
+                $userId,
+                $service,
+                $requestBody,
+                $responseCode,
+                $responseBody,
+                $ipAddress
+            )
+            ->andReturn(true);
+
+        // Ejecutar
+        $result = $this->service->registerInteraction(
+            $userId,
+            $service,
+            $requestBody,
+            $responseCode,
+            $responseBody,
+            $ipAddress
         );
-        
-        // No necesitamos assert porque el mock verifica que se llama al método save una vez
-        $this->assertTrue(true);
+
+        // Verificar
+        $this->assertTrue($result);
+    }
+
+    /** @test */
+    public function it_handles_repository_failure()
+    {
+        // Preparar
+        $userId = '123';
+        $service = 'gifs/search';
+        $requestBody = '{"query":"dogs"}';
+        $responseCode = 500;
+        $responseBody = '{"success":false,"message":"Internal Server Error"}';
+        $ipAddress = '127.0.0.1';
+
+        // Expectativas
+        $this->mockRepository->shouldReceive('registerInteraction')
+            ->once()
+            ->andReturn(false);
+
+        // Ejecutar
+        $result = $this->service->registerInteraction(
+            $userId,
+            $service,
+            $requestBody,
+            $responseCode,
+            $responseBody,
+            $ipAddress
+        );
+
+        // Verificar
+        $this->assertFalse($result);
     }
 } 
