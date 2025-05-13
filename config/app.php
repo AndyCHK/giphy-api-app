@@ -165,6 +165,10 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
+        App\Infrastructure\Providers\AuthServiceProvider::class,
+        App\Infrastructure\Providers\RepositoryServiceProvider::class,
+        App\Infrastructure\Providers\GiphyServiceProvider::class,
+        App\Infrastructure\Providers\ApiInteractionServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,

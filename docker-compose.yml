@@ -11,7 +11,8 @@ services:
     volumes:
       - .:/var/www
     networks:
-      - giphy-network
+      giphy-network:
+        ipv4_address: 172.28.1.10
     depends_on:
       - db
 
@@ -29,7 +30,8 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - giphy-network
+      giphy-network:
+        ipv4_address: 172.28.1.20
     command: --default-authentication-plugin=mysql_native_password
 
   nginx:
@@ -42,23 +44,22 @@ services:
       - .:/var/www
       - ./docker/nginx:/etc/nginx/conf.d
     networks:
-      - giphy-network
+      giphy-network:
+        ipv4_address: 172.28.1.30
     depends_on:
       - app
 
-  redis:
-    image: redis:alpine
-    container_name: giphy-api-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    networks:
-      - giphy-network
-
 networks:
   giphy-network:
+    name: giphy-api-network
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
 
 volumes:
   mysql_data:
+    name: giphy-api-mysql-data
     driver: local 

@@ -1,0 +1,72 @@
+@startuml
+actor "Usuario" as user
+participant "API Controller" as api
+participant "Auth Service" as auth
+participant "User Repository" as repo
+database "Database" as db
+
+== Registro ==
+
+user -> api : POST /api/auth/register
+activate api
+api -> auth : registerUser(datos)
+activate auth
+auth -> repo : emailExists(email)
+activate repo
+repo -> db : SELECT
+activate db
+db --> repo : resultado
+deactivate db
+repo --> auth : false
+deactivate repo
+auth -> repo : createUser(datos)
+activate repo
+repo -> db : INSERT
+activate db
+db --> repo : OK
+deactivate db
+repo --> auth : User
+deactivate repo
+auth -> auth : generateToken(user)
+auth --> api : Token
+deactivate auth
+api --> user : 201 Created + Token
+deactivate api
+
+== Login ==
+
+user -> api : POST /api/auth/login
+activate api
+api -> auth : authenticateUser(email, password)
+activate auth
+auth -> repo : findByEmail(email)
+activate repo
+repo -> db : SELECT
+activate db
+db --> repo : userData
+deactivate db
+repo --> auth : User
+deactivate repo
+auth -> auth : validatePassword(password)
+auth -> auth : generateToken(user)
+auth --> api : Token
+deactivate auth
+api --> user : 200 OK + Token
+deactivate api
+
+== Logout ==
+
+user -> api : POST /api/auth/logout
+activate api
+api -> auth : revokeToken(token)
+activate auth
+auth -> db : UPDATE token revoked = true
+activate db
+db --> auth : OK
+deactivate db
+auth --> api : OK
+deactivate auth
+api --> user : 200 OK
+deactivate api
+
+@enduml 

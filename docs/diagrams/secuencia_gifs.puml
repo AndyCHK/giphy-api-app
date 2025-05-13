@@ -1,0 +1,113 @@
+@startuml
+actor "Usuario" as user
+participant "API Controller" as api
+participant "Auth Middleware" as auth
+participant "Giphy Service" as giphy
+participant "API Externa Giphy" as exapi
+participant "Gif Repository" as repo
+database "Database" as db
+
+== Búsqueda de GIFs ==
+
+user -> api : GET /api/gifs/search?q=term
+activate api
+api -> auth : validateToken()
+activate auth
+auth --> api : Usuario autenticado
+deactivate auth
+api -> giphy : search(term, limit, offset)
+activate giphy
+giphy -> exapi : GET /v1/gifs/search
+activate exapi
+exapi --> giphy : JSON Response
+deactivate exapi
+giphy --> api : Colección de GIFs
+deactivate giphy
+api --> user : 200 OK + Colección de GIFs
+deactivate api
+
+== Obtener GIF por ID ==
+
+user -> api : GET /api/gifs/{id}
+activate api
+api -> auth : validateToken()
+activate auth
+auth --> api : Usuario autenticado
+deactivate auth
+api -> giphy : getById(id)
+activate giphy
+giphy -> exapi : GET /v1/gifs/{id}
+activate exapi
+exapi --> giphy : JSON Response
+deactivate exapi
+giphy --> api : Datos del GIF
+deactivate giphy
+api --> user : 200 OK + Datos del GIF
+deactivate api
+
+== Guardar GIF Favorito ==
+
+user -> api : POST /api/favorites
+activate api
+api -> auth : validateToken()
+activate auth
+auth --> api : Usuario autenticado
+deactivate auth
+api -> repo : saveFavorite(gifId, userId, alias)
+activate repo
+repo -> db : INSERT INTO favorite_gifs
+activate db
+db --> repo : OK
+deactivate db
+repo --> api : true
+deactivate repo
+api --> user : 201 Created
+deactivate api
+
+== Listar GIFs Favoritos ==
+
+user -> api : GET /api/favorites
+activate api
+api -> auth : validateToken()
+activate auth
+auth --> api : Usuario autenticado
+deactivate auth
+api -> repo : getFavorites(userId, limit, offset)
+activate repo
+repo -> db : SELECT FROM favorite_gifs
+activate db
+db --> repo : Resultados
+deactivate db
+repo --> api : Colección de favoritos
+deactivate repo
+api --> user : 200 OK + Colección de favoritos
+deactivate api
+
+== Eliminar GIF Favorito ==
+
+user -> api : DELETE /api/favorites/{gifId}
+activate api
+api -> auth : validateToken()
+activate auth
+auth --> api : Usuario autenticado
+deactivate auth
+api -> repo : isFavorite(gifId, userId)
+activate repo
+repo -> db : SELECT
+activate db
+db --> repo : Resultado
+deactivate db
+repo --> api : true
+deactivate repo
+api -> repo : removeFavorite(gifId, userId)
+activate repo
+repo -> db : DELETE FROM favorite_gifs
+activate db
+db --> repo : OK
+deactivate db
+repo --> api : true
+deactivate repo
+api --> user : 200 OK
+deactivate api
+
+@enduml 

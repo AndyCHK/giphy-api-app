@@ -21,4 +21,7 @@ yarn-error.log
 # Archivos de documentación
 DEVELOPMENT_NOTES.md
 ROADMAP.md
-Challenge_PHPa4f6b408-5b85-4f37-92f6-cdad410cd4fc.pdf
+*.pdf
+
+# Documentación técnica
+/docs/

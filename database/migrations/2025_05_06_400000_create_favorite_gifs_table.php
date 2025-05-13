@@ -9,14 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('favorite_gifs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->uuid('user_id');
             $table->string('gif_id');
-            $table->string('title')->nullable();
-            $table->text('url');
+            $table->string('alias')->nullable();
             $table->timestamps();
-            
-            // Un usuario no puede tener el mismo GIF como favorito más de una vez
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
             $table->unique(['user_id', 'gif_id']);
         });
     }

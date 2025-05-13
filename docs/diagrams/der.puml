@@ -1,0 +1,57 @@
+@startuml
+' Estilo del diagrama
+!define table(name) class name << (T,#FFAAAA) >>
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&key></color> x
+!define column(x) <color:#efefef><&media-record></color> x
+
+' Definición de tablas
+table(users) {
+  primary_key(id): uuid
+  column(name): varchar(255)
+  column(email): varchar(255) unique
+  column(password): varchar(255)
+  column(remember_token): varchar(100) null
+  column(created_at): timestamp
+  column(updated_at): timestamp
+}
+
+table(oauth_access_tokens) {
+  primary_key(id): varchar(100)
+  foreign_key(user_id): uuid null
+  column(client_id): bigint
+  column(name): varchar(255) null
+  column(scopes): text null
+  column(revoked): boolean
+  column(created_at): timestamp null
+  column(updated_at): timestamp null
+  column(expires_at): timestamp null
+}
+
+table(favorite_gifs) {
+  primary_key(id): uuid
+  foreign_key(user_id): uuid
+  column(gif_id): varchar(255)
+  column(alias): varchar(255)
+  column(created_at): timestamp
+  column(updated_at): timestamp
+}
+
+table(api_interactions) {
+  primary_key(id): uuid
+  foreign_key(user_id): uuid null
+  column(endpoint): varchar(255)
+  column(method): varchar(10)
+  column(request_body): text null
+  column(response_body): text null
+  column(response_code): int
+  column(ip_address): varchar(45)
+  column(created_at): timestamp
+}
+
+' Relaciones
+users ||--o{ oauth_access_tokens
+users ||--o{ favorite_gifs
+users ||--o{ api_interactions
+
+@enduml 

@@ -1,37 +1,31 @@
 # API de Integración con GIPHY
 
-Esta aplicación proporciona una API RESTful que integra con GIPHY, permitiendo a los usuarios buscar y guardar sus GIFs favoritos.
+Esta aplicación implementa una API RESTful que se integra con la API de GIPHY, permitiendo buscar y guardar GIFs favoritos. El proyecto sigue los principios SOLID y utiliza Clean Architecture.
 
 ## Requisitos Previos
 
-- Docker
-- Docker Compose
+- Docker y Docker Compose
 - Git
 
-## Estructura del Proyecto
+## Documentación Técnica
 
-El proyecto sigue los principios de Clean Architecture y está estructurado de la siguiente manera:
+En la carpeta `docs/diagrams` se encuentran los diagramas que documentan la arquitectura del sistema:
 
-```
-.
-├── app/
-│   ├── Domain/          # Entidades y reglas de negocio
-│   ├── Application/     # Casos de uso
-│   └── Infrastructure/  # Implementaciones concretas
-├── docker/             # Configuración de Docker
-├── database/          # Migraciones y seeders
-└── routes/            # Definición de rutas API
-```
+1. **Diagrama de Casos de Uso** (`caso_de_uso.puml`)
+2. **Diagrama de Secuencia** (`secuencia_autenticacion.puml`, `secuencia_gifs.puml`)
+3. **Diagrama Entidad-Relación (DER)** (`der.puml`)
 
-## Configuración del Entorno
+En la carpeta `postman/` se encuentra la colección de Postman con los endpoints de la API.
 
-1. Clonar el repositorio:
+## Despliegue con Docker
+
+1. Clonar el repositorio y acceder al directorio:
 ```bash
 git clone <url-del-repositorio>
 cd <nombre-del-proyecto>
 ```
 
-2. Copiar el archivo de configuración:
+2. Configurar el entorno:
 ```bash
 cp .env.example .env
 ```
@@ -39,42 +33,32 @@ cp .env.example .env
 3. Configurar las variables de entorno en el archivo `.env`:
 ```env
 DB_CONNECTION=mysql
-DB_HOST=db
+DB_HOST=172.28.1.20
 DB_PORT=3306
 DB_DATABASE=laravel
 DB_USERNAME=root
 DB_PASSWORD=secret
 
-REDIS_HOST=redis
-REDIS_PASSWORD=null
-REDIS_PORT=6379
+# Configuración para la API de Giphy
+GIPHY_API_KEY=XXXXXXXXXXXXXXXXXXXXXXXXX
+GIPHY_BASE_URL=https://api.giphy.com/v1
+GIPHY_RETRY_ATTEMPTS=5
+GIPHY_RETRY_DELAY=1000
 ```
 
-## Despliegue con Docker
+> **IMPORTANTE**: La API de Giphy requiere una clave API válida. Se proporciona una clave de ejemplo, pero es recomendable [obtener una clave propia](https://developers.giphy.com/dashboard/) para uso en producción.
 
-1. Construir y levantar los contenedores:
+4. Construir y levantar los contenedores:
 ```bash
 docker-compose up -d
 ```
 
-2. Instalar dependencias de PHP:
+5. Instalar dependencias y configurar la aplicación:
 ```bash
-docker-compose exec app composer install
-```
-
-3. Generar la clave de la aplicación:
-```bash
-docker-compose exec app php artisan key:generate
-```
-
-4. Ejecutar las migraciones:
-```bash
-docker-compose exec app php artisan migrate
-```
-
-5. Configurar OAuth2 (Laravel Passport):
-```bash
-docker-compose exec app php artisan passport:install
+docker-compose exec giphy-api-app composer install
+docker-compose exec giphy-api-app php artisan key:generate
+docker-compose exec giphy-api-app php artisan migrate:fresh --seed
+docker-compose exec giphy-api-app php artisan passport:install
 ```
 
 ## Servicios Disponibles
@@ -82,16 +66,43 @@ docker-compose exec app php artisan passport:install
 Después del despliegue, los siguientes servicios estarán disponibles:
 
 - **API**: http://localhost:8000
-- **MySQL**: localhost:3306
-- **Redis**: localhost:6379
+- **MySQL**: 172.28.1.20:3306
+
+Los contenedores que se crean son:
+- `giphy-api-app`: Aplicación Laravel
+- `giphy-api-db`: Base de datos MySQL
+- `giphy-api-nginx`: Servidor web Nginx
 
 ## Endpoints de la API
 
+La API implementa los 4 servicios requeridos en el challenge:
+
+1. **Login:**
+   - `POST /api/auth/login`: Autenticación para operar con la API
+
+2. **Buscar GIFs:**
+   - `GET /api/gifs/search`: Buscar GIFs por una frase o término
+
+3. **Buscar GIF por ID:**
+   - `GET /api/gifs/{id}`: Obtener información de un GIF específico
+
+4. **Guardar GIF favorito:**
+   - `POST /api/favorites`: Almacenar un GIF favorito para un usuario
+
+Endpoints adicionales:
+
 - `POST /api/auth/register`: Registro de usuarios
-- `POST /api/auth/login`: Inicio de sesión
-- `GET /api/gifs/search`: Búsqueda de GIFs
-- `POST /api/gifs/favorite`: Guardar GIF como favorito
-- `GET /api/gifs/favorites`: Listar GIFs favoritos
+- `POST /api/auth/logout`: Cierre de sesión
+- `GET /api/favorites`: Listar GIFs favoritos
+- `DELETE /api/favorites/{id}`: Eliminar un GIF de favoritos
+
+## Arquitectura
+
+El proyecto está organizado siguiendo principios de Clean Architecture:
+
+- **Domain**: Contiene la lógica de negocio, entidades, interfaces y reglas
+- **Application**: Implementa los casos de uso
+- **Infrastructure**: Maneja aspectos técnicos (controladores, repositorios, etc.)
 
 ## Comandos Útiles
 
@@ -110,59 +121,28 @@ docker-compose restart [servicio]
 ### Laravel
 ```bash
 # Limpiar caché
-docker-compose exec app php artisan cache:clear
+docker-compose exec giphy-api-app php artisan cache:clear
 
 # Ejecutar pruebas
-docker-compose exec app php artisan test
+docker-compose exec giphy-api-app php artisan test
 ```
 
 ## Solución de Problemas
 
 1. **Error de permisos en storage:**
 ```bash
-docker-compose exec app chmod -R 777 storage bootstrap/cache
+docker-compose exec giphy-api-app chmod -R 777 storage bootstrap/cache
 ```
 
 2. **Error de conexión a la base de datos:**
 - Verificar que el servicio de MySQL esté activo
 - Confirmar las credenciales en el archivo .env
-- Asegurarse de que el host sea "db" en el .env
 
-3. **Error 500:**
-- Verificar los logs de Laravel:
-```bash
-docker-compose exec app tail -f storage/logs/laravel.log
-```
-
-## Mantenimiento
-
-Para mantener el sistema actualizado:
-
-1. Actualizar dependencias:
-```bash
-docker-compose exec app composer update
-```
-
-2. Actualizar migraciones:
-```bash
-docker-compose exec app php artisan migrate
-```
+3. **Errores con la API de Giphy:**
+- Asegurarse de que la clave API (`GIPHY_API_KEY`) sea válida
+- Verificar la conectividad a `api.giphy.com`
+- Revisar los logs para ver errores específicos: `docker-compose logs -f giphy-api-app`
 
 ## Seguridad
 
-- Las claves de API y credenciales sensibles deben almacenarse en el archivo .env
-- Asegúrese de que el archivo .env esté incluido en .gitignore
-- Mantenga Laravel y todas las dependencias actualizadas
-- Use HTTPS en producción
-
-## Contribución
-
-1. Fork el repositorio
-2. Cree una rama para su feature (`git checkout -b feature/AmazingFeature`)
-3. Commit sus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abra un Pull Request
-
-## Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT - vea el archivo LICENSE.md para más detalles.
+La API utiliza OAuth 2.0 mediante Laravel Passport. Todos los endpoints, excepto login y registro, requieren un token de autenticación.
