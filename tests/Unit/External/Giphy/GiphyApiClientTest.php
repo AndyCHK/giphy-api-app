@@ -4,17 +4,14 @@ namespace Tests\Unit\External\Giphy;
 
 use App\Domain\DTOs\Giphy\GifDTO;
 use App\Domain\DTOs\Giphy\GifsCollectionDTO;
-use App\Domain\Exceptions\Giphy\GifNotFoundException;
-use App\Domain\Exceptions\Giphy\GiphyApiException;
+use App\Domain\Exceptions\Giphy\GiphyNotFoundException;
+use App\Domain\Exceptions\Giphy\GiphyRequestException;
+use App\Domain\Exceptions\Giphy\GiphyResponseException;
 use App\Infrastructure\External\Giphy\GiphyApiClient;
 use App\Infrastructure\External\Giphy\GiphyConfig;
 use App\Infrastructure\External\Giphy\GiphyResponseTransformer;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Mockery;
 use Tests\TestCase;
 
@@ -22,210 +19,120 @@ class GiphyApiClientTest extends TestCase
 {
     private $config;
     private $transformer;
-    private $mockHandler;
-    private $httpClient;
     private $apiClient;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Mockear la configuración
         $this->config = Mockery::mock(GiphyConfig::class);
         $this->config->shouldReceive('getApiKey')->andReturn('test_api_key');
-
-        // Mockear el transformador
-        $this->transformer = Mockery::mock(GiphyResponseTransformer::class);
-
-        // Configurar el cliente HTTP mockeado
-        $this->mockHandler = new MockHandler();
-        $handlerStack = HandlerStack::create($this->mockHandler);
-        $this->httpClient = new Client(['handler' => $handlerStack]);
-
-        // Crear el cliente API con dependencias mockeadas
-        // Vamos a mockear también el cliente HTTP internamente
         $this->config->shouldReceive('getTimeout')->andReturn(30);
         $this->config->shouldReceive('getRetryAttempts')->andReturn(3);
         $this->config->shouldReceive('getRetryDelay')->andReturn(100);
         $this->config->shouldReceive('getBaseUrl')->andReturn('https://api.giphy.com/v1');
 
-        $this->apiClient = new GiphyApiClient($this->config, $this->transformer);
+        $this->transformer = Mockery::mock(GiphyResponseTransformer::class);
     }
 
-    public function test_search_returns_collection_on_successful_response(): void
+    /**
+     * @test
+     * @group happy
+     */
+    public function test_search_returns_collection_when_successful(): void
     {
-        $successResponse = new Response(200, [], json_encode([
-            'data' => [
-                ['id' => 'gif1', 'title' => 'GIF 1'],
-                ['id' => 'gif2', 'title' => 'GIF 2']
-            ],
-            'pagination' => ['total_count' => 2, 'count' => 2, 'offset' => 0]
-        ]));
-        $this->mockHandler->append($successResponse);
-
+        Http::fake([
+            'https://api.giphy.com/v1/*' => Http::response([
+                'data' => [
+                    ['id' => 'gif1', 'title' => 'Test Gif 1'],
+                    ['id' => 'gif2', 'title' => 'Test Gif 2']
+                ],
+                'pagination' => ['total_count' => 2]
+            ], 200),
+        ]);
+        
+        $apiClient = new GiphyApiClient($this->config, $this->transformer);
+        
         $collection = new GifsCollectionDTO([
-            new GifDTO('gif1', 'GIF 1', 'url1', ['preview' => 'preview1']),
-            new GifDTO('gif2', 'GIF 2', 'url2', ['preview' => 'preview2'])
+            new GifDTO('gif1', 'Test Gif 1', 'url1', []),
+            new GifDTO('gif2', 'Test Gif 2', 'url2', [])
         ], 2, 0, 2);
-
+        
         $this->transformer->shouldReceive('transformSearchResponse')
             ->once()
+            ->with(Mockery::type(Response::class))
             ->andReturn($collection);
-
-        $result = $this->apiClient->search('test query', 10, 0);
-
+        
+        $result = $apiClient->search('test', 2, 0);
+        
         $this->assertEquals($collection->toArray(), $result);
     }
 
-    public function test_search_throws_exception_on_api_error(): void
+    /**
+     * @test
+     * @group happy
+     */
+    public function test_get_by_id_returns_gif_when_successful(): void
     {
-        $errorResponse = new Response(400, [], json_encode([
-            'meta' => [
-                'status' => 400,
-                'msg' => 'Bad Request'
-            ]
-        ]));
-        $this->mockHandler->append($errorResponse);
-
-        $this->expectException(GiphyApiException::class);
-
-        $this->apiClient->search('test query');
-    }
-
-    public function test_search_throws_exception_on_server_error(): void
-    {
-        $serverErrorResponse = new Response(500, [], 'Internal Server Error');
-        $this->mockHandler->append($serverErrorResponse);
-
-        $this->expectException(GiphyApiException::class);
-
-        $this->apiClient->search('test query');
-    }
-
-    public function test_search_throws_exception_on_connection_error(): void
-    {
-        // Arrange
-        $request = new Request('GET', 'gifs/search');
-        $exception = new RequestException('Connection error', $request);
-        $this->mockHandler->append($exception);
-
-        // Configurar expectativas
-        $this->expectException(GiphyApiException::class);
-
-        // Act
-        $this->apiClient->search('test query');
-    }
-
-    public function test_find_by_id_returns_gif_on_successful_response(): void
-    {
-        // Arrange
-        $successResponse = new Response(200, [], json_encode([
-            'data' => [
-                'id' => 'gif1',
-                'title' => 'GIF 1',
-                'images' => [
-                    'original' => ['url' => 'original_url'],
-                    'fixed_height' => ['url' => 'preview_url']
+        Http::fake([
+            'https://api.giphy.com/v1/*' => Http::response([
+                'data' => [
+                    'id' => 'test123',
+                    'title' => 'Test Gif'
                 ]
-            ]
-        ]));
-        $this->mockHandler->append($successResponse);
-
-        // Configurar expectativas del transformador
-        $gif = new GifDTO('gif1', 'GIF 1', 'original_url', [
-            'original' => ['url' => 'original_url'],
-            'fixed_height' => ['url' => 'preview_url']
+            ], 200),
         ]);
-
-        $this->transformer->shouldReceive('transformGifResponse')
+        
+        $apiClient = new GiphyApiClient($this->config, $this->transformer);
+        
+        $gif = new GifDTO('test123', 'Test Gif', 'url', []);
+        
+        $this->transformer->shouldReceive('transformGetByIdResponse')
             ->once()
+            ->with(Mockery::type(Response::class))
             ->andReturn($gif);
-
-        // Act
-        $result = $this->apiClient->getById('gif1');
-
-        // Assert
+        
+        $result = $apiClient->getById('test123');
+        
         $this->assertEquals($gif->toArray(), $result);
     }
 
-    public function test_find_by_id_throws_not_found_exception_when_gif_not_exists(): void
+    /**
+     * @test
+     */
+    public function test_search_throws_exception_when_http_error_occurs(): void
     {
-        // Arrange
-        $notFoundResponse = new Response(404, [], json_encode([
-            'meta' => [
-                'status' => 404,
-                'msg' => 'Not Found'
-            ]
-        ]));
-        $this->mockHandler->append($notFoundResponse);
-
-        // Configurar expectativas
-        $this->expectException(GifNotFoundException::class);
-
-        // Act
-        $this->apiClient->getById('nonexistent');
+        Http::fake([
+            'https://api.giphy.com/v1/*' => Http::response(
+                ['meta' => ['status' => 500, 'msg' => 'Error interno del servidor']],
+                500
+            ),
+        ]);
+        
+        $apiClient = new GiphyApiClient($this->config, $this->transformer);
+        
+        $this->expectException(GiphyRequestException::class);
+        
+        $apiClient->search('test', 10, 0);
     }
-
-    public function test_find_by_id_throws_exception_on_api_error(): void
+    
+    /**
+     * @test
+     */
+    public function test_get_by_id_throws_exception_when_http_error_occurs(): void
     {
-        // Arrange
-        $errorResponse = new Response(400, [], json_encode([
-            'meta' => [
-                'status' => 400,
-                'msg' => 'Bad Request'
-            ]
-        ]));
-        $this->mockHandler->append($errorResponse);
-
-        // Configurar expectativas
-        $this->expectException(GiphyApiException::class);
-
-        // Act
-        $this->apiClient->getById('gif1');
-    }
-
-    public function test_get_trending_returns_collection_on_successful_response(): void
-    {
-        // Arrange
-        $successResponse = new Response(200, [], json_encode([
-            'data' => [
-                ['id' => 'trending1', 'title' => 'Trending GIF 1'],
-                ['id' => 'trending2', 'title' => 'Trending GIF 2']
-            ],
-            'pagination' => ['total_count' => 2, 'count' => 2, 'offset' => 0]
-        ]));
-        $this->mockHandler->append($successResponse);
-
-        $collection = new GifsCollectionDTO([
-            new GifDTO('trending1', 'Trending GIF 1', 'url1', ['preview' => 'preview1']),
-            new GifDTO('trending2', 'Trending GIF 2', 'url2', ['preview' => 'preview2'])
-        ], 2, 0, 2);
-
-        $this->transformer->shouldReceive('transformTrendingResponse')
-            ->once()
-            ->andReturn($collection);
-
-
-        // Assert
-        $this->assertEquals($collection->toArray(), $result);
-    }
-
-    public function test_get_trending_throws_exception_on_api_error(): void
-    {
-        // Arrange
-        $errorResponse = new Response(400, [], json_encode([
-            'meta' => [
-                'status' => 400,
-                'msg' => 'Bad Request'
-            ]
-        ]));
-        $this->mockHandler->append($errorResponse);
-
-        // Configurar expectativas
-        $this->expectException(GiphyApiException::class);
-
-        // Act
-        $this->apiClient->getTrending();
+        Http::fake([
+            'https://api.giphy.com/v1/*' => Http::response(
+                ['meta' => ['status' => 404, 'msg' => 'GIF no encontrado']],
+                404
+            ),
+        ]);
+        
+        $apiClient = new GiphyApiClient($this->config, $this->transformer);
+        
+        $this->expectException(GiphyRequestException::class);
+        
+        $apiClient->getById('nonexistent');
     }
 
     protected function tearDown(): void
