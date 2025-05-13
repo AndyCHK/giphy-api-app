@@ -21,8 +21,8 @@ En la carpeta `postman/` se encuentra la colección de Postman con los endpoints
 
 1. Clonar el repositorio y acceder al directorio:
 ```bash
-git clone <url-del-repositorio>
-cd <nombre-del-proyecto>
+git clone https://github.com/AndyCHK/giphy-api-app.git
+cd giphy-api-app
 ```
 
 2. Configurar el entorno:

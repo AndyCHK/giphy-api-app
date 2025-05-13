@@ -21,8 +21,6 @@ interface GiphyServiceInterface
     public function getById(string $id): ?array;
 
     /**
-     * NOTA: Este método no es un requisito del Challenge pero se incluye en la interfaz
-     * para posibles implementaciones futuras.
      *
      * @param int $limit Number of results to return
      * @param int $offset Results offset

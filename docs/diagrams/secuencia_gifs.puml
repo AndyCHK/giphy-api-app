@@ -7,9 +7,21 @@ participant "API Externa Giphy" as exapi
 participant "Gif Repository" as repo
 database "Database" as db
 
+== Login ==
+
+user -> api : POST /api/auth/login
+activate api
+api -> db : Validar credenciales
+activate db
+db --> api : Credenciales válidas
+deactivate db
+api -> api : Generar token OAuth2.0 (30 min expiración)
+api --> user : 200 OK + Token
+deactivate api
+
 == Búsqueda de GIFs ==
 
-user -> api : GET /api/gifs/search?q=term
+user -> api : GET /api/gifs/search?query=term&limit=10&offset=0
 activate api
 api -> auth : validateToken()
 activate auth
@@ -61,53 +73,29 @@ db --> repo : OK
 deactivate db
 repo --> api : true
 deactivate repo
-api --> user : 201 Created
+api --> user : 201 Created (Sin contenido en respuesta)
 deactivate api
 
-== Listar GIFs Favoritos ==
+== Registro de interacciones API ==
+note right
+  Todas las interacciones con la API son
+  registradas automáticamente por un middleware
+end note
 
-user -> api : GET /api/favorites
+api -> db : Registrar interacción
 activate api
-api -> auth : validateToken()
-activate auth
-auth --> api : Usuario autenticado
-deactivate auth
-api -> repo : getFavorites(userId, limit, offset)
-activate repo
-repo -> db : SELECT FROM favorite_gifs
 activate db
-db --> repo : Resultados
+note right
+  Datos registrados:
+  - Usuario 
+  - Servicio consultado
+  - Cuerpo de la petición
+  - Código HTTP de respuesta
+  - Cuerpo de la respuesta
+  - IP de origen
+end note
+db --> api : OK
 deactivate db
-repo --> api : Colección de favoritos
-deactivate repo
-api --> user : 200 OK + Colección de favoritos
-deactivate api
-
-== Eliminar GIF Favorito ==
-
-user -> api : DELETE /api/favorites/{gifId}
-activate api
-api -> auth : validateToken()
-activate auth
-auth --> api : Usuario autenticado
-deactivate auth
-api -> repo : isFavorite(gifId, userId)
-activate repo
-repo -> db : SELECT
-activate db
-db --> repo : Resultado
-deactivate db
-repo --> api : true
-deactivate repo
-api -> repo : removeFavorite(gifId, userId)
-activate repo
-repo -> db : DELETE FROM favorite_gifs
-activate db
-db --> repo : OK
-deactivate db
-repo --> api : true
-deactivate repo
-api --> user : 200 OK
 deactivate api
 
 @enduml 

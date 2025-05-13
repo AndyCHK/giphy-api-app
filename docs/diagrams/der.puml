@@ -11,7 +11,6 @@ table(users) {
   column(name): varchar(255)
   column(email): varchar(255) unique
   column(password): varchar(255)
-  column(remember_token): varchar(100) null
   column(created_at): timestamp
   column(updated_at): timestamp
 }
@@ -40,14 +39,34 @@ table(favorite_gifs) {
 table(api_interactions) {
   primary_key(id): uuid
   foreign_key(user_id): uuid null
-  column(endpoint): varchar(255)
-  column(method): varchar(10)
+  column(service): varchar(255)
   column(request_body): text null
-  column(response_body): text null
   column(response_code): int
+  column(response_body): text null
   column(ip_address): varchar(45)
   column(created_at): timestamp
 }
+
+' Notas explicativas
+note right of api_interactions
+  Registra todas las interacciones con la API:
+  - Usuario que realizó la petición
+  - Servicio consultado
+  - Cuerpo de la petición
+  - Código HTTP de la respuesta
+  - Cuerpo de la respuesta
+  - IP de origen
+end note
+
+note right of oauth_access_tokens
+  Los tokens tienen una 
+  expiración de 30 minutos
+end note
+
+note right of favorite_gifs
+  Almacena los GIFs favoritos 
+  de cada usuario
+end note
 
 ' Relaciones
 users ||--o{ oauth_access_tokens

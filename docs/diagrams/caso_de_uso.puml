@@ -4,50 +4,45 @@ skinparam packageStyle rectangle
 
 actor "Usuario" as user
 
-rectangle "API GIPHY" {
-  usecase "Autenticarse" as UC1
+rectangle "API Giphy" {
+  usecase "Autenticarse (Login)" as UC1
   usecase "Buscar GIFs" as UC2
   usecase "Obtener GIF por ID" as UC3
   usecase "Guardar GIF favorito" as UC4
-  usecase "Listar GIFs favoritos" as UC5
-  usecase "Eliminar GIF favorito" as UC6
 }
 
 user --> UC1
 user --> UC2
 user --> UC3
 user --> UC4
-user --> UC5
-user --> UC6
 
 note right of UC1
-  Incluye login, registro 
-  y cierre de sesión
+  Permite la autenticación para 
+  operar con la API.
+  Devuelve un token con expiración 
+  de 30 minutos.
 end note
 
 note right of UC2
-  Permite buscar GIFs en 
-  la API de GIPHY por términos
+  Buscar gifs por una frase o término.
+  Parámetros:
+  - QUERY (requerido)
+  - LIMIT (opcional)
+  - OFFSET (opcional)
 end note
 
 note right of UC3
-  Obtiene información detallada
-  de un GIF específico
+  Obtener información de un 
+  gift específico por ID
 end note
 
 note right of UC4
-  Guarda un GIF en favoritos
-  del usuario autenticado
-end note
-
-note right of UC5
-  Lista todos los GIFs favoritos
-  del usuario autenticado
-end note
-
-note right of UC6
-  Elimina un GIF de los favoritos
-  del usuario autenticado
+  Almacenar para un usuario 
+  un gif favorito.
+  Parámetros:
+  - GIF_ID
+  - ALIAS
+  - USER_ID
 end note
 
 @enduml 
