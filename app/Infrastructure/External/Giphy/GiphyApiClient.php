@@ -81,14 +81,6 @@ class GiphyApiClient implements GiphyServiceInterface
         }
     }
 
-    /**
-     * Este método no está implementado ya que no forma parte de los requisitos del Challenge
-     * @throws \Exception
-     */
-    public function getTrending(int $limit = 25, int $offset = 0): array
-    {
-        throw new \Exception('Método no implementado. Esta funcionalidad no forma parte de los requisitos del Challenge.');
-    }
 
     /**
      * @throws GiphyRequestException
