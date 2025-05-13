@@ -1,376 +1,419 @@
-{
-  "info": {
-    "_postman_id": "8c5e9e5e-3e5a-4f62-8c4c-0d4b3e4f8d0f",
-    "name": "Giphy API Challenge",
-    "description": "API para integración con Giphy, con autenticación OAuth2.0 y registro de interacciones",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "Autenticación",
-      "description": "Endpoints para registro, login y logout de usuarios",
-      "item": [
-        {
-          "name": "Registro de Usuario",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"name\": \"Usuario de Prueba\",\n    \"email\": \"usuario@ejemplo.com\",\n    \"password\": \"12345678\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/auth/register",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "register"
-              ]
-            },
-            "description": "Permite registrar un nuevo usuario en el sistema"
-          },
-          "response": []
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Verificar si la respuesta es exitosa",
-                  "if (pm.response.code === 200) {",
-                  "    // Parsear la respuesta JSON",
-                  "    var jsonResponse = pm.response.json();",
-                  "    ",
-                  "    // Verificar si tiene el token",
-                  "    if (jsonResponse.data && jsonResponse.data.token) {",
-                  "        // Guardar el token en una variable de entorno",
-                  "        pm.environment.set('access_token', jsonResponse.data.token);",
-                  "        console.log('Token guardado en la variable de entorno: access_token');",
-                  "    } else {",
-                  "        console.error('No se encontró el token en la respuesta');",
-                  "    }",
-                  "} else {",
-                  "    console.error('Error en la respuesta: ' + pm.response.code);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"usuario@ejemplo.com\",\n    \"password\": \"12345678\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "description": "Permite iniciar sesión y obtener un token de acceso"
-          },
-          "response": []
-        },
-        {
-          "name": "Logout",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
-            },
-            "description": "Cierra la sesión y revoca el token de acceso"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Giphy",
-      "description": "Endpoints para buscar GIFs a través de la API de Giphy",
-      "item": [
-        {
-          "name": "Buscar GIFs",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/gifs/search?query=gatos&limit=10&offset=0",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "gifs",
-                "search"
-              ],
-              "query": [
-                {
-                  "key": "query",
-                  "value": "gatos",
-                  "description": "Término de búsqueda (requerido)"
-                },
-                {
-                  "key": "limit",
-                  "value": "10",
-                  "description": "Límite de resultados (opcional, predeterminado: 25)"
-                },
-                {
-                  "key": "offset",
-                  "value": "0",
-                  "description": "Offset para paginación (opcional, predeterminado: 0)"
-                }
-              ]
-            },
-            "description": "Busca GIFs por un término de búsqueda"
-          },
-          "response": []
-        },
-        {
-          "name": "Obtener GIF por ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/gifs/xT0xeJpnvpImsR5Knu",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "gifs",
-                "xT0xeJpnvpImsR5Knu"
-              ]
-            },
-            "description": "Obtiene la información de un GIF específico por su ID"
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Favoritos",
-      "description": "Endpoints para gestionar GIFs favoritos",
-      "item": [
-        {
-          "name": "Listar Favoritos",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/favorites?limit=25&offset=0",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "favorites"
-              ],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "25",
-                  "description": "Límite de resultados (opcional, predeterminado: 25)"
-                },
-                {
-                  "key": "offset",
-                  "value": "0",
-                  "description": "Offset para paginación (opcional, predeterminado: 0)"
-                }
-              ]
-            },
-            "description": "Obtiene la lista de GIFs favoritos del usuario autenticado"
-          },
-          "response": []
-        },
-        {
-          "name": "Guardar Favorito",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"gif_id\": \"xT0xeJpnvpImsR5Knu\",\n    \"alias\": \"Mi GIF favorito\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/favorites",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "favorites"
-              ]
-            },
-            "description": "Guarda un GIF como favorito para el usuario autenticado"
-          },
-          "response": []
-        },
-        {
-          "name": "Eliminar Favorito",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Accept",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/favorites/xT0xeJpnvpImsR5Knu",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "favorites",
-                "xT0xeJpnvpImsR5Knu"
-              ]
-            },
-            "description": "Elimina un GIF de los favoritos del usuario autenticado"
-          },
-          "response": []
-        }
-      ]
-    }
-  ],
-  "event": [
-    {
-      "listen": "prerequest",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          ""
-        ]
-      }
-    },
-    {
-      "listen": "test",
-      "script": {
-        "type": "text/javascript",
-        "exec": [
-          ""
-        ]
-      }
-    }
-  ],
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8000",
-      "type": "string"
-    }
-  ]
+
+	"info": {
+		"_postman_id": "0cf02f93-ee61-4c4d-943e-8b1e31ad348f",
+		"name": "Giphy API Challenge",
+		"description": "API para integración con Giphy, con autenticación OAuth2.0 y registro de interacciones",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1374901"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registro de Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Usuario de Prueba\",\n    \"email\": \"usuario@ejemplo.com\",\n    \"password\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Permite registrar un nuevo usuario en el sistema"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Verificar si la respuesta es exitosa",
+									"if (pm.response.code === 200) {",
+									"    // Parsear la respuesta JSON",
+									"    var jsonResponse = pm.response.json();",
+									"    ",
+									"    // Verificar si tiene el token",
+									"    if (jsonResponse.data && jsonResponse.data.token) {",
+									"        // Guardar el token en una variable de entorno",
+									"        pm.environment.set('access_token', jsonResponse.data.token);",
+									"        console.log('Token guardado en la variable de entorno: access_token');",
+									"    } else {",
+									"        console.error('No se encontró el token en la respuesta');",
+									"    }",
+									"} else {",
+									"    console.error('Error en la respuesta: ' + pm.response.code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario@ejemplo.com\",\n    \"password\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Permite iniciar sesión y obtener un token de acceso"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Cierra la sesión y revoca el token de acceso"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para registro, login y logout de usuarios"
+		},
+		{
+			"name": "Giphy",
+			"item": [
+				{
+					"name": "Buscar GIFs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response structure is valid\", function () {",
+									"    pm.expect(responseJson).to.have.property('success');",
+									"    pm.expect(responseJson.success).to.be.true;",
+									"    pm.expect(responseJson).to.have.property('data');",
+									"    pm.expect(responseJson.data).to.be.an('array');",
+									"    pm.expect(responseJson).to.have.property('pagination');",
+									"});",
+									"",
+									"if (responseJson.data && responseJson.data.length > 0) {",
+									"    // Guardar el primer ID de GIF para usarlo en otras pruebas",
+									"    pm.environment.set('gif_id', responseJson.data[0].id);",
+									"    console.log('GIF ID guardado: ' + responseJson.data[0].id);",
+									"    ",
+									"    pm.test(\"GIF data structure is valid\", function () {",
+									"        pm.expect(responseJson.data[0]).to.have.property('id');",
+									"        pm.expect(responseJson.data[0]).to.have.property('title');",
+									"        pm.expect(responseJson.data[0]).to.have.property('url');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/gifs/search?query=gatos&limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"gifs",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "gatos",
+									"description": "Término de búsqueda (requerido)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Límite de resultados (opcional, predeterminado: 25)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset para paginación (opcional, predeterminado: 0)"
+								}
+							]
+						},
+						"description": "Busca GIFs por un término de búsqueda"
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener GIF por ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/gifs/:gift_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"gifs",
+								":gift_id"
+							],
+							"variable": [
+								{
+									"key": "gift_id",
+									"value": "{{gif_id}}"
+								}
+							]
+						},
+						"description": "Obtiene la información de un GIF específico por su ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para buscar GIFs a través de la API de Giphy"
+		},
+		{
+			"name": "Favoritos",
+			"item": [
+				{
+					"name": "Listar Favoritos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/favorites?limit=25&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"favorites"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "25",
+									"description": "Límite de resultados (opcional, predeterminado: 25)"
+								},
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Offset para paginación (opcional, predeterminado: 0)"
+								}
+							]
+						},
+						"description": "Obtiene la lista de GIFs favoritos del usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Guardar Favorito",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"gif_id\": \"xT0xeJpnvpImsR5Knu\",\n    \"alias\": \"Mi GIF favorito\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/favorites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"favorites"
+							]
+						},
+						"description": "Guarda un GIF como favorito para el usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Favorito",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/favorites/xT0xeJpnvpImsR5Knu",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"favorites",
+								"xT0xeJpnvpImsR5Knu"
+							]
+						},
+						"description": "Elimina un GIF de los favoritos del usuario autenticado"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints para gestionar GIFs favoritos"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		}
+	]
 }
