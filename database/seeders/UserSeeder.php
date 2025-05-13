@@ -15,7 +15,6 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Usuarios existentes - Comentados para evitar duplicados
-        /*
         EloquentUser::create([
             'id' => (string) Str::uuid(),
             'name' => 'Admin User',
@@ -35,16 +34,7 @@ class UserSeeder extends Seeder
         ]);
 
         EloquentUser::factory(5)->create();
-        */
 
-        // Añadir usuario de prueba nuevo
-        EloquentUser::create([
-            'id' => (string) Str::uuid(),
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => (string) new Password('password'),
-            'roles' => ['user'],
-            'email_verified_at' => now(),
-        ]);
+
     }
-} 
+}
