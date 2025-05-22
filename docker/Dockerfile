@@ -21,6 +21,12 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-install mysqli pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
+# Install Xdebug
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
+# Copy Xdebug configuration
+COPY docker/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -42,8 +48,9 @@ COPY --chown=$user:$user src/ /var/www/
 # Change current user to laravel
 USER $user
 
-# Expose port 9000
+# Expose ports
 EXPOSE 9000
+EXPOSE 9003
 
 # Start php-fpm server
 CMD ["php-fpm"] 

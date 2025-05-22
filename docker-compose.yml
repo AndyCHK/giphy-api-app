@@ -13,6 +13,13 @@ services:
     networks:
       giphy-network:
         ipv4_address: 172.28.1.10
+    ports:
+      - "9003:9003"
+    environment:
+      PHP_IDE_CONFIG: "serverName=giphy-api"
+      XDEBUG_CONFIG: "client_host=172.28.0.1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
 
