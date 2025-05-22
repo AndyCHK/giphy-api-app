@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Infrastructure\Http\Controllers;
 
 use App\Domain\Interfaces\GifRepositoryInterface;
+use App\Domain\Interfaces\GiphyIdAdapterServiceInterface;
 use App\Infrastructure\Http\Requests\Favorite\SaveFavoriteRequest;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -26,7 +28,7 @@ readonly class FavoriteController
      * @param SaveFavoriteRequest $request
      * @return JsonResponse
      */
-    public function store(SaveFavoriteRequest $request): JsonResponse
+    public function store2(SaveFavoriteRequest $request): JsonResponse
     {
         $gifId = $request->input('gif_id');
         $alias = $request->input('alias');
@@ -78,9 +80,36 @@ readonly class FavoriteController
 
     /**
      * @param Request $request
+     * @param GiphyIdAdapterServiceInterface $adapter
+     * @return Response
+     */
+    public function store(Request $request, GiphyIdAdapterServiceInterface $adapter)
+    {
+        $request->validate([
+            'gif_id' => 'required|string', // Aceptamos el ID alfanumérico
+            'alias' => 'required|string',
+            'user_id' => 'required|numeric'
+        ]);
+
+        // Convertir a ID numérico
+        $numericGifId = $adapter->toNumericId($request->gif_id);
+
+        // Guardar favorito con ID numérico
+        $this->gifRepository->saveFavorite(
+            $request->user_id,
+            $numericGifId, // Ahora es numérico
+            $request->alias
+        );
+
+        return response()->noContent();
+    }
+
+    /**
+     * @param Request $request
+     * @param GiphyIdAdapterServiceInterface $adapter
      * @return JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, GiphyIdAdapterServiceInterface $adapter): JsonResponse
     {
         $limit = (int) $request->input('limit', 25);
         $offset = (int) $request->input('offset', 0);
@@ -97,9 +126,17 @@ readonly class FavoriteController
         try {
             $favorites = $this->gifRepository->getFavorites($userId, $limit, $offset);
 
+            // Convertir los IDs numéricos de vuelta a IDs alfanuméricos de Giphy
+            $favoritesWithOriginalIds = array_map(function ($favorite) use ($adapter) {
+                if (isset($favorite['id']) && is_numeric($favorite['id'])) {
+                    $favorite['original_gif_id'] = $adapter->toGiphyId((int)$favorite['id']);
+                }
+                return $favorite;
+            }, $favorites);
+
             return response()->json([
                 'success' => true,
-                'data' => $favorites,
+                'data' => $favoritesWithOriginalIds,
                 'pagination' => [
                     'count' => count($favorites),
                     'offset' => $offset,
@@ -108,7 +145,7 @@ readonly class FavoriteController
         } catch (\Throwable $e) {
             Log::error('Error al obtener favoritos', [
                 'message' => $e->getMessage(),
-                'user_id' => $userId,
+                'user_id' => $userId
             ]);
 
             return response()->json([
@@ -120,9 +157,10 @@ readonly class FavoriteController
 
     /**
      * @param string $id
+     * @param GiphyIdAdapterServiceInterface $adapter
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $id, GiphyIdAdapterServiceInterface $adapter): JsonResponse
     {
         $userId = Auth::guard('api')->id();
 
@@ -134,14 +172,17 @@ readonly class FavoriteController
         }
 
         try {
-            if (!$this->gifRepository->isFavorite($id, $userId)) {
+            // Convertir ID alfanumérico a numérico
+            $numericGifId = $adapter->toNumericId($id);
+
+            if (!$this->gifRepository->isFavorite($numericGifId, $userId)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'GIF no encontrado en favoritos',
                 ], 404);
             }
 
-            $result = $this->gifRepository->removeFavorite($id, $userId);
+            $result = $this->gifRepository->removeFavorite($numericGifId, $userId);
 
             if (!$result) {
                 return response()->json([
@@ -158,7 +199,7 @@ readonly class FavoriteController
             Log::error('Error al eliminar favorito', [
                 'message' => $e->getMessage(),
                 'gif_id' => $id,
-                'user_id' => $userId,
+                'user_id' => $userId
             ]);
 
             return response()->json([

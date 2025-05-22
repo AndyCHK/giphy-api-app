@@ -11,6 +11,7 @@ use App\Domain\ValueObjects\Password;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use DateTime;
 use Illuminate\Support\Str;
+use mysql_xdevapi\Collection;
 
 final class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -101,9 +102,15 @@ final class EloquentUserRepository implements UserRepositoryInterface
         );
     }
 
+    private function list() //: Collection
+    {
+        $users = EloquentUser::all();
+        return $users;
+
+    }
 
     private function getPasswordFromUser(User $user): string
     {
         return $user->getPasswordHash();
     }
-} 
+}

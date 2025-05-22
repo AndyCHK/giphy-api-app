@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http\Requests\Favorite;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SaveFavoriteRequest extends FormRequest
@@ -19,13 +20,16 @@ class SaveFavoriteRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
         return [
-            'gif_id' => 'required|string',
-            'alias' => 'required|string|max:255',
+            //'gif_id' => 'required|string',
+            //'alias' => 'required|string|max:255',
+            'gif_id' => 'required|string', // Aceptamos el ID alfanumérico
+            'alias' => 'required|string',
+            'user_id' => 'required|numeric'
         ];
     }
 
@@ -42,4 +46,4 @@ class SaveFavoriteRequest extends FormRequest
             'alias.max' => 'El alias no debe exceder los 255 caracteres',
         ];
     }
-} 
+}

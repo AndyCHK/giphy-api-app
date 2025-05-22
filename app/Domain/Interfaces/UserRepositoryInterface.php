@@ -6,6 +6,9 @@ namespace App\Domain\Interfaces;
 
 use App\Domain\Models\User;
 use App\Domain\ValueObjects\Email;
+use Illuminate\Database\Eloquent\Collection;
+
+//use Ramsey\Collection\Collection;
 
 interface UserRepositoryInterface
 {
@@ -14,4 +17,6 @@ interface UserRepositoryInterface
     public function save(User $user): void;
     public function update(User $user): void;
     public function delete(string $id): void;
-} 
+
+    public function all(): ?Collection;
+}

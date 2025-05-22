@@ -11,19 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_id_mappings', function (Blueprint $table) {
+        Schema::create('giphy_id_mappings', function (Blueprint $table) {
             $table->id(); // ID numérico autoincremental (para cumplir con el challenge)
-            $table->uuid('user_uuid'); // UUID del usuario en la tabla users
+            $table->string('giphy_id', 100); // ID alfanumérico de Giphy
             $table->timestamps();
             
-            // Índices y restricciones
-            $table->unique('user_uuid');
-            
-            // Clave foránea que referencia al UUID en la tabla users
-            $table->foreign('user_uuid')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
+            $table->unique('giphy_id');
         });
     }
 
@@ -32,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_id_mappings');
+        Schema::dropIfExists('giphy_id_mappings');
     }
 };

@@ -14,16 +14,16 @@ use Illuminate\Support\Str;
 class EloquentGifRepository implements GifRepositoryInterface
 {
     /**
-     * @param string $gifId
+     * @param string|int $gifId
      * @param int|string $userId
      * @param string $alias
      * @return bool
      */
-    public function saveFavorite(string $gifId, $userId, string $alias = ''): bool
+    public function saveFavorite($gifId, $userId, string $alias = ''): bool
     {
         try {
             $user = EloquentUser::find($userId);
-            
+
             if (!$user) {
                 Log::error('Usuario no encontrado al guardar favorito', [
                     'user_id' => $userId,
@@ -31,22 +31,22 @@ class EloquentGifRepository implements GifRepositoryInterface
                 ]);
                 return false;
             }
-            
+
             $exists = EloquentFavoriteGif::where('user_id', $user->id)
                 ->where('gif_id', $gifId)
                 ->exists();
-                
+
             if ($exists) {
                 return true;
             }
-            
+
             $favorite = new EloquentFavoriteGif();
             $favorite->user_id = $user->id;
             $favorite->gif_id = $gifId;
             $favorite->alias = $alias;
-            
+
             $result = $favorite->save();
-            
+
             return $result;
         } catch (\Throwable $e) {
             Log::error('Error al guardar favorito', [
@@ -59,15 +59,15 @@ class EloquentGifRepository implements GifRepositoryInterface
     }
 
     /**
-     * @param string $gifId
+     * @param string|int $gifId
      * @param int|string $userId
      * @return bool
      */
-    public function removeFavorite(string $gifId, $userId): bool
+    public function removeFavorite($gifId, $userId): bool
     {
         try {
             $user = EloquentUser::find($userId);
-            
+
             if (!$user) {
                 Log::error('Usuario no encontrado al eliminar favorito', [
                     'user_id' => $userId,
@@ -75,20 +75,20 @@ class EloquentGifRepository implements GifRepositoryInterface
                 ]);
                 return false;
             }
-            
+
             $exists = EloquentFavoriteGif::where('user_id', $user->id)
                 ->where('gif_id', $gifId)
                 ->exists();
-                
+
             if (!$exists) {
                 return false;
             }
-            
+
             try {
                 $deleted = EloquentFavoriteGif::where('user_id', $user->id)
                     ->where('gif_id', $gifId)
                     ->delete();
-                    
+
                 return $deleted > 0;
             } catch (\Throwable $dbError) {
                 Log::error('Error en la operación de eliminación', [
@@ -118,17 +118,17 @@ class EloquentGifRepository implements GifRepositoryInterface
     {
         try {
             $user = EloquentUser::find($userId);
-            
+
             if (!$user) {
                 return [];
             }
-            
+
             $favorites = EloquentFavoriteGif::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->skip($offset)
                 ->take($limit)
                 ->get();
-                
+
             return $favorites->map(function ($favorite) {
                 return [
                     'id' => $favorite->gif_id,
@@ -146,24 +146,24 @@ class EloquentGifRepository implements GifRepositoryInterface
     }
 
     /**
-     * @param string $gifId
+     * @param string|int $gifId
      * @param int|string $userId
      * @return bool
      */
-    public function isFavorite(string $gifId, $userId): bool
+    public function isFavorite($gifId, $userId): bool
     {
         try {
             $user = EloquentUser::find($userId);
-            
+
             if (!$user) {
                 return false;
             }
-            
+
             try {
                 $exists = EloquentFavoriteGif::where('user_id', $user->id)
                     ->where('gif_id', $gifId)
                     ->exists();
-                    
+
                 return $exists;
             } catch (\Throwable $dbError) {
                 Log::error('Error en consulta de verificación de favorito', [
@@ -182,4 +182,4 @@ class EloquentGifRepository implements GifRepositoryInterface
             return false;
         }
     }
-} 
+}

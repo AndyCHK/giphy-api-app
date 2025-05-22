@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Domain\Interfaces\GiphyIdMappingRepositoryInterface;
+use App\Domain\Interfaces\GiphyIdAdapterServiceInterface;
+use App\Infrastructure\Persistence\Eloquent\EloquentGiphyIdMappingRepository;
+use App\Domain\Services\GiphyIdAdapterService;
+
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +16,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            GiphyIdMappingRepositoryInterface::class,
+            EloquentGiphyIdMappingRepository::class
+        );
+        $this->app->bind(
+            GiphyIdAdapterServiceInterface::class,
+            GiphyIdAdapterService::class
+        );
     }
 
     /**
