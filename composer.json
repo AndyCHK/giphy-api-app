@@ -62,9 +62,15 @@
         "test:external": "phpunit --filter External",
         "test:coverage": "phpunit --coverage-html coverage",
         "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:check:modified": "FILES=$(git diff --name-only | grep '\\.php$') && if [ -n \"$FILES\" ]; then php-cs-fixer fix --dry-run --diff $FILES; else echo \"No hay archivos PHP modificados.\"; fi",
         "cs:fix": "php-cs-fixer fix",
+        "cs:fix:modified": "FILES=$(git diff --name-only | grep '\\.php$') && if [ -n \"$FILES\" ]; then php-cs-fixer fix $FILES; else echo \"No hay archivos PHP modificados.\"; fi",
+        "cs:fix:staged": "FILES=$(git diff --cached --name-only | grep '\\.php$') && if [ -n \"$FILES\" ]; then php-cs-fixer fix $FILES; else echo \"No hay archivos PHP modificados en staged.\"; fi",
         "lint": "@cs:check",
-        "format": "@cs:fix"
+        "lint:modified": "@cs:check:modified",
+        "format": "@cs:fix",
+        "format:modified": "@cs:fix:modified",
+        "format:staged": "@cs:fix:staged"
     },
     "extra": {
         "laravel": {
