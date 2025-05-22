@@ -12,4 +12,4 @@ final class InvalidCredentialsException extends DomainException
     {
         parent::__construct('Las credenciales proporcionadas son inválidas');
     }
-} 
+}

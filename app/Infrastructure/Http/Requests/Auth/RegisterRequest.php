@@ -20,7 +20,7 @@ final class RegisterRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8'],
             'roles' => ['sometimes', 'array'],
-            'roles.*' => ['string']
+            'roles.*' => ['string'],
         ];
     }
 
@@ -35,7 +35,7 @@ final class RegisterRequest extends FormRequest
             'password.required' => 'La contraseña es requerida',
             'password.min' => 'La contraseña debe tener al menos :min caracteres',
             'roles.array' => 'Los roles deben ser una lista',
-            'roles.*.string' => 'Cada rol debe ser una cadena de texto'
+            'roles.*.string' => 'Cada rol debe ser una cadena de texto',
         ];
     }
-} 
+}

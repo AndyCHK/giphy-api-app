@@ -5,7 +5,7 @@ namespace App\Domain\Interfaces;
 interface GiphyServiceInterface
 {
     /**
-     * @param string $query 
+     * @param string $query
      * @param int $limit
      * @param int $offset
      * @return array
@@ -17,5 +17,4 @@ interface GiphyServiceInterface
      * @return array|null
      */
     public function getById(string $id): ?array;
-
-} 
+}

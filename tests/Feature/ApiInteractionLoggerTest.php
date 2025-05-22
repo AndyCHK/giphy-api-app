@@ -145,8 +145,8 @@ class ApiInteractionLoggerTest extends TestCase
         $result = $middleware->handle($request, function () use ($response) {
             return $response;
         });
-        
+
         // Aserción explícita
         $this->assertEquals($response, $result, 'El middleware debe devolver la misma respuesta');
     }
-} 
+}

@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ApiAuthenticationTest extends TestCase
@@ -17,13 +16,13 @@ class ApiAuthenticationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         EloquentUser::create([
             'id' => (string) rand(1000, 9999), // ID como string
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
-            'roles' => ['user']
+            'roles' => ['user'],
         ]);
     }
 
@@ -32,7 +31,7 @@ class ApiAuthenticationTest extends TestCase
     {
         $response = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $response->assertStatus(200)
@@ -44,13 +43,13 @@ class ApiAuthenticationTest extends TestCase
                         'id',
                         'name',
                         'email',
-                        'roles'
+                        'roles',
                     ],
                     'token',
-                    'token_type'
-                ]
+                    'token_type',
+                ],
             ]);
-            
+
         $this->assertEquals('Bearer', $response->json('data.token_type'));
         $this->assertNotEmpty($response->json('data.token'));
     }
@@ -61,7 +60,7 @@ class ApiAuthenticationTest extends TestCase
         // 1. Primero hacemos login para obtener un token
         $loginResponse = $this->postJson('/api/auth/login', [
             'email' => 'test@example.com',
-            'password' => 'password'
+            'password' => 'password',
         ]);
 
         $token = $loginResponse->json('data.token');

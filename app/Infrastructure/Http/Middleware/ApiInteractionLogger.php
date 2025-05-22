@@ -13,10 +13,8 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
-
 class ApiInteractionLogger
 {
-
     public function __construct(
         private readonly ApiInteractionService $apiInteractionService,
         private readonly TokenService $tokenService
@@ -68,7 +66,7 @@ class ApiInteractionLogger
             Log::error('Error al registrar interacción API', [
                 'message' => $e->getMessage(),
                 'path' => $request->path(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
         }
     }
@@ -80,7 +78,7 @@ class ApiInteractionLogger
     private function getUserId(Request $request): ?string
     {
         $userId = Auth::id();
-        if (!empty($userId)) {
+        if (! empty($userId)) {
             return $userId;
         }
 
@@ -90,7 +88,7 @@ class ApiInteractionLogger
         }
 
         $tokenInfo = $this->tokenService->verifyToken($bearerToken);
-        if (!$tokenInfo['valid']) {
+        if (! $tokenInfo['valid']) {
             return null;
         }
 

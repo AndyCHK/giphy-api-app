@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Services;
 
 use App\Domain\Interfaces\ApiInteractionRepositoryInterface;
-use App\Domain\Interfaces\GiphyIdAdapterServiceInterface;
-use App\Domain\Interfaces\GiphyIdMappingRepositoryInterface;
-
 
 class ApiInteractionService
 {

@@ -2,11 +2,10 @@
 
 namespace App\Providers;
 
-use App\Domain\Interfaces\GiphyIdMappingRepositoryInterface;
 use App\Domain\Interfaces\GiphyIdAdapterServiceInterface;
-use App\Infrastructure\Persistence\Eloquent\EloquentGiphyIdMappingRepository;
+use App\Domain\Interfaces\GiphyIdMappingRepositoryInterface;
 use App\Domain\Services\GiphyIdAdapterService;
-
+use App\Infrastructure\Persistence\Eloquent\EloquentGiphyIdMappingRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

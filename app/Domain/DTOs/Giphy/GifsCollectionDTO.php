@@ -27,7 +27,7 @@ class GifsCollectionDTO
         $pagination = $data['pagination'] ?? [
             'total_count' => count($gifs),
             'count' => count($gifs),
-            'offset' => 0
+            'offset' => 0,
         ];
 
         return new self(

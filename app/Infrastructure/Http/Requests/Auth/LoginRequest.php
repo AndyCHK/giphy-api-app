@@ -17,7 +17,7 @@ final class LoginRequest extends FormRequest
     {
         return [
             'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string']
+            'password' => ['required', 'string'],
         ];
     }
 
@@ -26,7 +26,7 @@ final class LoginRequest extends FormRequest
         return [
             'email.required' => 'El email es requerido',
             'email.email' => 'El email debe ser una dirección válida',
-            'password.required' => 'La contraseña es requerida'
+            'password.required' => 'La contraseña es requerida',
         ];
     }
-} 
+}

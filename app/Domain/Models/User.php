@@ -63,7 +63,6 @@ class User extends Entity
         return $this->password->verify($password);
     }
 
-    
     public function getPasswordHash(): string
     {
         return (string) $this->password;
@@ -94,4 +93,4 @@ class User extends Entity
     {
         return $this->updatedAt;
     }
-} 
+}

@@ -12,4 +12,4 @@ class GifNotFoundException extends Exception
     {
         parent::__construct("GIF con ID '$id' no encontrado", 404);
     }
-} 
+}

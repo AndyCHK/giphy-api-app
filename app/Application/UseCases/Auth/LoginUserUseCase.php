@@ -21,14 +21,14 @@ final class LoginUserUseCase
     {
         $user = $this->userRepository->findByEmail(new Email($dto->email));
 
-        if (!$user) {
+        if (! $user) {
             throw new InvalidCredentialsException();
         }
 
-        if (!$user->verifyPassword($dto->password)) {
+        if (! $user->verifyPassword($dto->password)) {
             throw new InvalidCredentialsException();
         }
 
         return $user;
     }
-} 
+}

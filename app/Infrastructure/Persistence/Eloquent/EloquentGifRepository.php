@@ -7,9 +7,7 @@ namespace App\Infrastructure\Persistence\Eloquent;
 use App\Domain\Interfaces\GifRepositoryInterface;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentFavoriteGif;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class EloquentGifRepository implements GifRepositoryInterface
 {
@@ -24,11 +22,12 @@ class EloquentGifRepository implements GifRepositoryInterface
         try {
             $user = EloquentUser::find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 Log::error('Usuario no encontrado al guardar favorito', [
                     'user_id' => $userId,
-                    'gif_id' => $gifId
+                    'gif_id' => $gifId,
                 ]);
+
                 return false;
             }
 
@@ -52,8 +51,9 @@ class EloquentGifRepository implements GifRepositoryInterface
             Log::error('Error al guardar favorito', [
                 'message' => $e->getMessage(),
                 'gif_id' => $gifId,
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
+
             return false;
         }
     }
@@ -68,11 +68,12 @@ class EloquentGifRepository implements GifRepositoryInterface
         try {
             $user = EloquentUser::find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 Log::error('Usuario no encontrado al eliminar favorito', [
                     'user_id' => $userId,
-                    'gif_id' => $gifId
+                    'gif_id' => $gifId,
                 ]);
+
                 return false;
             }
 
@@ -80,7 +81,7 @@ class EloquentGifRepository implements GifRepositoryInterface
                 ->where('gif_id', $gifId)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 return false;
             }
 
@@ -94,16 +95,18 @@ class EloquentGifRepository implements GifRepositoryInterface
                 Log::error('Error en la operación de eliminación', [
                     'message' => $dbError->getMessage(),
                     'gif_id' => $gifId,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ]);
+
                 return false;
             }
         } catch (\Throwable $e) {
             Log::error('Error al eliminar favorito', [
                 'message' => $e->getMessage(),
                 'gif_id' => $gifId,
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
+
             return false;
         }
     }
@@ -119,7 +122,7 @@ class EloquentGifRepository implements GifRepositoryInterface
         try {
             $user = EloquentUser::find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 return [];
             }
 
@@ -139,8 +142,9 @@ class EloquentGifRepository implements GifRepositoryInterface
         } catch (\Throwable $e) {
             Log::error('Error al obtener favoritos', [
                 'message' => $e->getMessage(),
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
+
             return [];
         }
     }
@@ -155,7 +159,7 @@ class EloquentGifRepository implements GifRepositoryInterface
         try {
             $user = EloquentUser::find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 return false;
             }
 
@@ -169,16 +173,18 @@ class EloquentGifRepository implements GifRepositoryInterface
                 Log::error('Error en consulta de verificación de favorito', [
                     'message' => $dbError->getMessage(),
                     'gif_id' => $gifId,
-                    'user_id' => $user->id
+                    'user_id' => $user->id,
                 ]);
+
                 return false;
             }
         } catch (\Throwable $e) {
             Log::error('Error al verificar favorito', [
                 'message' => $e->getMessage(),
                 'gif_id' => $gifId,
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
+
             return false;
         }
     }

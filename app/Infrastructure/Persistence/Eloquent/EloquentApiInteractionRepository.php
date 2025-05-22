@@ -10,7 +10,6 @@ use App\Infrastructure\Persistence\Eloquent\Models\EloquentApiInteraction;
 use DateTime;
 use Illuminate\Support\Facades\Log;
 
-
 final class EloquentApiInteractionRepository implements ApiInteractionRepositoryInterface
 {
     public function __construct(
@@ -42,6 +41,7 @@ final class EloquentApiInteractionRepository implements ApiInteractionRepository
                 'message' => $e->getMessage(),
                 'interaction_id' => $apiInteraction->id(),
             ]);
+
             throw $e;
         }
     }
@@ -54,7 +54,7 @@ final class EloquentApiInteractionRepository implements ApiInteractionRepository
     {
         $eloquentApiInteraction = $this->model->find($id);
 
-        if (!$eloquentApiInteraction) {
+        if (! $eloquentApiInteraction) {
             return null;
         }
 
@@ -88,7 +88,7 @@ final class EloquentApiInteractionRepository implements ApiInteractionRepository
     }
 
     /**
-     * @param int $responseCode 
+     * @param int $responseCode
      * @return array
      */
     public function findByResponseCode(int $responseCode): array
@@ -118,4 +118,4 @@ final class EloquentApiInteractionRepository implements ApiInteractionRepository
             new DateTime($eloquentApiInteraction->updated_at->format('Y-m-d H:i:s'))
         );
     }
-} 
+}

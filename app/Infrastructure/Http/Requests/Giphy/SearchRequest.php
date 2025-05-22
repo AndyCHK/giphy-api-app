@@ -46,4 +46,4 @@ class SearchRequest extends FormRequest
             'offset.min' => 'El desplazamiento mínimo es 0',
         ];
     }
-} 
+}

@@ -16,8 +16,8 @@ use App\Infrastructure\Http\Requests\Auth\LoginRequest;
 use App\Infrastructure\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
-use Laravel\Passport\TokenRepository;
 use Laravel\Passport\RefreshTokenRepository;
+use Laravel\Passport\TokenRepository;
 
 final class AuthController extends Controller
 {
@@ -51,16 +51,16 @@ final class AuthController extends Controller
                         'id' => $user->id(),
                         'name' => $user->name(),
                         'email' => (string) $user->email(),
-                        'roles' => $user->roles()
+                        'roles' => $user->roles(),
                     ],
                     'token' => $token,
-                    'token_type' => 'Bearer'
-                ]
+                    'token_type' => 'Bearer',
+                ],
             ], 201);
         } catch (UserAlreadyExistsException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 409);
         }
     }
@@ -86,16 +86,16 @@ final class AuthController extends Controller
                         'id' => $user->id(),
                         'name' => $user->name(),
                         'email' => (string) $user->email(),
-                        'roles' => $user->roles()
+                        'roles' => $user->roles(),
                     ],
                     'token' => $token,
-                    'token_type' => 'Bearer'
-                ]
+                    'token_type' => 'Bearer',
+                ],
             ]);
         } catch (InvalidCredentialsException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 401);
         }
     }
@@ -108,19 +108,19 @@ final class AuthController extends Controller
         try {
             $bearerToken = request()->bearerToken();
 
-            if (!$bearerToken) {
+            if (! $bearerToken) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'No se proporcionó token de autenticación'
+                    'message' => 'No se proporcionó token de autenticación',
                 ], 401);
             }
 
             $tokenVerification = $this->tokenService->verifyToken($bearerToken);
 
-            if (!$tokenVerification['valid']) {
+            if (! $tokenVerification['valid']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Token inválido: ' . $tokenVerification['error']
+                    'message' => 'Token inválido: ' . $tokenVerification['error'],
                 ], 401);
             }
 
@@ -131,17 +131,22 @@ final class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Sesión cerrada exitosamente'
+                'message' => 'Sesión cerrada exitosamente',
             ]);
         } catch (\Exception $e) {
             Log::error('Error en el proceso de logout', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error al cerrar sesión: ' . $e->getMessage()
+                'message' => 'Error al cerrar sesión: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function list(): ?JsonResponse
+    {
+        return null;
     }
 }

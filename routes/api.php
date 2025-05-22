@@ -4,7 +4,6 @@ use App\Infrastructure\Http\Controllers\Auth\AuthController;
 use App\Infrastructure\Http\Controllers\FavoriteController;
 use App\Infrastructure\Http\Controllers\GiphyController;
 use App\Infrastructure\Http\Controllers\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

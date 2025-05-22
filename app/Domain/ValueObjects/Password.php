@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\ValueObjects;
 
-use InvalidArgumentException;
 use Illuminate\Support\Facades\Hash;
+use InvalidArgumentException;
 
 final class Password implements ValueObject
 {
@@ -35,7 +35,7 @@ final class Password implements ValueObject
 
     public function equals(ValueObject $other): bool
     {
-        if (!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 
@@ -44,13 +44,12 @@ final class Password implements ValueObject
 
     public function verify(string $password): bool
     {
-        if (!$this->isBcrypt($this->hashedValue)) {
+        if (! $this->isBcrypt($this->hashedValue)) {
             return false;
         }
-        
+
         return Hash::check($password, $this->hashedValue);
     }
-
 
     private function isBcrypt(string $hash): bool
     {
@@ -61,4 +60,4 @@ final class Password implements ValueObject
     {
         return $this->hashedValue;
     }
-} 
+}

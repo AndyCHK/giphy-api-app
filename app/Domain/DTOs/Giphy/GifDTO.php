@@ -45,4 +45,4 @@ class GifDTO
             'import_datetime' => $this->importDatetime,
         ];
     }
-} 
+}

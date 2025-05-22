@@ -3,23 +3,22 @@
 namespace Tests\Unit;
 
 use App\Domain\Interfaces\ApiInteractionRepositoryInterface;
-use App\Domain\Models\ApiInteraction;
 use App\Domain\Services\ApiInteractionService;
-use PHPUnit\Framework\TestCase;
 use Mockery;
+use PHPUnit\Framework\TestCase;
 
 class ApiInteractionServiceTest extends TestCase
 {
     /** @var ApiInteractionRepositoryInterface|\Mockery\MockInterface */
     private $mockRepository;
-    
+
     /** @var ApiInteractionService */
     private $service;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->mockRepository = Mockery::mock(ApiInteractionRepositoryInterface::class);
         $this->service = new ApiInteractionService($this->mockRepository);
     }
@@ -135,4 +134,4 @@ class ApiInteractionServiceTest extends TestCase
         // Verificar
         $this->assertFalse($result);
     }
-} 
+}

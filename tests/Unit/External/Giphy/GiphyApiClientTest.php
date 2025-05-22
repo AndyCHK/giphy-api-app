@@ -4,9 +4,7 @@ namespace Tests\Unit\External\Giphy;
 
 use App\Domain\DTOs\Giphy\GifDTO;
 use App\Domain\DTOs\Giphy\GifsCollectionDTO;
-use App\Domain\Exceptions\Giphy\GiphyNotFoundException;
 use App\Domain\Exceptions\Giphy\GiphyRequestException;
-use App\Domain\Exceptions\Giphy\GiphyResponseException;
 use App\Infrastructure\External\Giphy\GiphyApiClient;
 use App\Infrastructure\External\Giphy\GiphyConfig;
 use App\Infrastructure\External\Giphy\GiphyResponseTransformer;
@@ -45,26 +43,26 @@ class GiphyApiClientTest extends TestCase
             'https://api.giphy.com/v1/*' => Http::response([
                 'data' => [
                     ['id' => 'gif1', 'title' => 'Test Gif 1'],
-                    ['id' => 'gif2', 'title' => 'Test Gif 2']
+                    ['id' => 'gif2', 'title' => 'Test Gif 2'],
                 ],
-                'pagination' => ['total_count' => 2]
+                'pagination' => ['total_count' => 2],
             ], 200),
         ]);
-        
+
         $apiClient = new GiphyApiClient($this->config, $this->transformer);
-        
+
         $collection = new GifsCollectionDTO([
             new GifDTO('gif1', 'Test Gif 1', 'url1', []),
-            new GifDTO('gif2', 'Test Gif 2', 'url2', [])
+            new GifDTO('gif2', 'Test Gif 2', 'url2', []),
         ], 2, 0, 2);
-        
+
         $this->transformer->shouldReceive('transformSearchResponse')
             ->once()
             ->with(Mockery::type(Response::class))
             ->andReturn($collection);
-        
+
         $result = $apiClient->search('test', 2, 0);
-        
+
         $this->assertEquals($collection->toArray(), $result);
     }
 
@@ -78,22 +76,22 @@ class GiphyApiClientTest extends TestCase
             'https://api.giphy.com/v1/*' => Http::response([
                 'data' => [
                     'id' => 'test123',
-                    'title' => 'Test Gif'
-                ]
+                    'title' => 'Test Gif',
+                ],
             ], 200),
         ]);
-        
+
         $apiClient = new GiphyApiClient($this->config, $this->transformer);
-        
+
         $gif = new GifDTO('test123', 'Test Gif', 'url', []);
-        
+
         $this->transformer->shouldReceive('transformGetByIdResponse')
             ->once()
             ->with(Mockery::type(Response::class))
             ->andReturn($gif);
-        
+
         $result = $apiClient->getById('test123');
-        
+
         $this->assertEquals($gif->toArray(), $result);
     }
 
@@ -108,14 +106,14 @@ class GiphyApiClientTest extends TestCase
                 500
             ),
         ]);
-        
+
         $apiClient = new GiphyApiClient($this->config, $this->transformer);
-        
+
         $this->expectException(GiphyRequestException::class);
-        
+
         $apiClient->search('test', 10, 0);
     }
-    
+
     /**
      * @test
      */
@@ -127,11 +125,11 @@ class GiphyApiClientTest extends TestCase
                 404
             ),
         ]);
-        
+
         $apiClient = new GiphyApiClient($this->config, $this->transformer);
-        
+
         $this->expectException(GiphyRequestException::class);
-        
+
         $apiClient->getById('nonexistent');
     }
 

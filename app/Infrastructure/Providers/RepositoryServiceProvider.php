@@ -20,4 +20,4 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(GifRepositoryInterface::class, EloquentGifRepository::class);
         $this->app->bind(ApiInteractionRepositoryInterface::class, EloquentApiInteractionRepository::class);
     }
-} 
+}

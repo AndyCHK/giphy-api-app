@@ -35,9 +35,9 @@ class GiphyResponseTransformerTest extends TestCase
                     'url' => 'https://giphy.com/gifs/test1',
                     'images' => [
                         'original' => [
-                            'url' => 'https://media.giphy.com/media/test1/giphy.gif'
-                        ]
-                    ]
+                            'url' => 'https://media.giphy.com/media/test1/giphy.gif',
+                        ],
+                    ],
                 ],
                 [
                     'id' => 'gif2',
@@ -45,33 +45,30 @@ class GiphyResponseTransformerTest extends TestCase
                     'url' => 'https://giphy.com/gifs/test2',
                     'images' => [
                         'original' => [
-                            'url' => 'https://media.giphy.com/media/test2/giphy.gif'
-                        ]
-                    ]
-                ]
+                            'url' => 'https://media.giphy.com/media/test2/giphy.gif',
+                        ],
+                    ],
+                ],
             ],
             'pagination' => [
                 'total_count' => 100,
                 'count' => 2,
-                'offset' => 0
+                'offset' => 0,
             ],
             'meta' => [
                 'status' => 200,
-                'msg' => 'OK'
-            ]
+                'msg' => 'OK',
+            ],
         ];
 
-        // Mockear la respuesta
         $response = Mockery::mock(Response::class);
         $response->shouldReceive('failed')->andReturn(false);
         $response->shouldReceive('json')->with()->andReturn($responseData);
         $response->shouldReceive('json')->with('data')->andReturn($responseData['data']);
         $response->shouldReceive('json')->with('meta.status')->andReturn(200);
 
-        // Transformar la respuesta
         $result = $this->transformer->transformSearchResponse($response);
 
-        // Verificar el resultado
         $this->assertInstanceOf(GifsCollectionDTO::class, $result);
         $this->assertCount(2, $result->gifs);
         $this->assertEquals(100, $result->totalCount);
@@ -87,7 +84,6 @@ class GiphyResponseTransformerTest extends TestCase
      */
     public function test_transforms_get_by_id_response_successfully(): void
     {
-        // Crear datos de respuesta
         $responseData = [
             'data' => [
                 'id' => 'test123',
@@ -95,18 +91,18 @@ class GiphyResponseTransformerTest extends TestCase
                 'url' => 'https://giphy.com/gifs/test123',
                 'images' => [
                     'original' => [
-                        'url' => 'https://media.giphy.com/media/test123/giphy.gif'
-                    ]
+                        'url' => 'https://media.giphy.com/media/test123/giphy.gif',
+                    ],
                 ],
                 'username' => 'testuser',
                 'source' => 'testsource',
                 'rating' => 'g',
-                'import_datetime' => '2021-01-01 00:00:00'
+                'import_datetime' => '2021-01-01 00:00:00',
             ],
             'meta' => [
                 'status' => 200,
-                'msg' => 'OK'
-            ]
+                'msg' => 'OK',
+            ],
         ];
 
         // Mockear la respuesta
@@ -140,8 +136,8 @@ class GiphyResponseTransformerTest extends TestCase
             'data' => [],
             'meta' => [
                 'status' => 200,
-                'msg' => 'OK'
-            ]
+                'msg' => 'OK',
+            ],
         ];
 
         // Mockear la respuesta
@@ -209,18 +205,18 @@ class GiphyResponseTransformerTest extends TestCase
                     'id' => 'trending1',
                     'title' => 'Trending Gif 1',
                     'url' => 'https://giphy.com/gifs/trending1',
-                    'images' => []
-                ]
+                    'images' => [],
+                ],
             ],
             'pagination' => [
                 'total_count' => 50,
                 'count' => 1,
-                'offset' => 0
+                'offset' => 0,
             ],
             'meta' => [
                 'status' => 200,
-                'msg' => 'OK'
-            ]
+                'msg' => 'OK',
+            ],
         ];
 
         // Mockear la respuesta
@@ -244,4 +240,4 @@ class GiphyResponseTransformerTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

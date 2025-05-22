@@ -8,12 +8,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Log;
 use Laravel\Passport\HasApiTokens;
 
 class EloquentUser extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
 
     protected $table = 'users';
 
@@ -57,25 +58,25 @@ class EloquentUser extends Authenticatable
     {
         logger()->debug('Buscando usuario por ID', [
             'id' => $id,
-            'id_type' => gettype($id)
+            'id_type' => gettype($id),
         ]);
-        
+
         // Llamamos al método find original pero a través de la clase padre para evitar recursión
         $query = static::query();
         $user = $query->find($id);
-        
+
         if ($user) {
             logger()->debug('Usuario encontrado', [
                 'id' => $id,
                 'user_id' => $user->id,
-                'user_email' => $user->email
+                'user_email' => $user->email,
             ]);
         } else {
             logger()->debug('Usuario NO encontrado', [
-                'id' => $id
+                'id' => $id,
             ]);
         }
-        
+
         return $user;
     }
 
@@ -86,4 +87,4 @@ class EloquentUser extends Authenticatable
     {
         return UserFactory::new();
     }
-} 
+}

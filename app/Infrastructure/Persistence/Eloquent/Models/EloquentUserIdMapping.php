@@ -38,7 +38,7 @@ class EloquentUserIdMapping extends Model
 
     /**
      * Busca un mapeo por UUID de usuario
-     * 
+     *
      * @param string $uuid
      * @return EloquentUserIdMapping|null
      */
@@ -49,18 +49,18 @@ class EloquentUserIdMapping extends Model
 
     /**
      * Crea un nuevo mapeo para un usuario si no existe
-     * 
+     *
      * @param string $uuid
      * @return EloquentUserIdMapping
      */
     public static function createForUserUuid(string $uuid): EloquentUserIdMapping
     {
         $mapping = static::findByUuid($uuid);
-        
+
         if ($mapping) {
             return $mapping;
         }
-        
+
         return static::create(['user_uuid' => $uuid]);
     }
 }

@@ -37,4 +37,4 @@ final class RegisterUserUseCase
 
         return $user;
     }
-} 
+}

@@ -13,9 +13,13 @@ use Illuminate\Database\Eloquent\Collection;
 interface UserRepositoryInterface
 {
     public function findById(string $id): ?User;
+
     public function findByEmail(Email $email): ?User;
+
     public function save(User $user): void;
+
     public function update(User $user): void;
+
     public function delete(string $id): void;
 
     public function all(): ?Collection;

@@ -49,7 +49,6 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     public function search(string $query, int $limit = 25, int $offset = 0): array
     {
-        // Verificar si hay datos en caché
         if ($this->config->useCache()) {
             $cachedResults = $this->cacheService->getCachedSearchResults($query, $limit, $offset);
             if ($cachedResults !== null) {
@@ -63,13 +62,11 @@ class GiphyApiClient implements GiphyServiceInterface
             }
         }
 
-        // Verificar si el circuit breaker permite hacer la llamada
         if (! $this->circuitBreaker->canMakeRequest()) {
             Log::warning('Giphy: Circuit breaker impidió la llamada API', [
                 'query' => $query,
             ]);
 
-            // Si usamos fallback, intentar usar caché aunque esté expirada
             if ($this->config->useFallback()) {
                 $cachedResults = $this->cacheService->getCachedSearchResults($query, $limit, $offset);
                 if ($cachedResults !== null) {
@@ -81,12 +78,10 @@ class GiphyApiClient implements GiphyServiceInterface
                 }
             }
 
-            // Si no hay datos en caché, lanzar excepción
             throw new GiphyRequestException('Servicio temporalmente no disponible');
         }
 
         try {
-            // Intentar hacer la llamada a la API
             $response = $this->httpClient->get('/gifs/search', [
                 'api_key' => $this->config->getApiKey(),
                 'q' => $query,
@@ -96,15 +91,12 @@ class GiphyApiClient implements GiphyServiceInterface
                 'lang' => 'es',
             ]);
 
-            // Transformar la respuesta
             $collection = $this->transformer->transformSearchResponse($response);
 
-            // Guardar en caché
             if ($this->config->useCache()) {
                 $this->cacheService->cacheSearchResults($query, $limit, $offset, $collection);
             }
 
-            // Registrar llamada exitosa
             $this->circuitBreaker->recordSuccess();
 
             return $collection->toArray();
@@ -121,7 +113,6 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     public function getById(string $id): ?array
     {
-        // Verificar si hay datos en caché
         if ($this->config->useCache()) {
             $cachedGif = $this->cacheService->getCachedGif($id);
             if ($cachedGif !== null) {
@@ -131,11 +122,9 @@ class GiphyApiClient implements GiphyServiceInterface
             }
         }
 
-        // Verificar si el circuit breaker permite hacer la llamada
         if (! $this->circuitBreaker->canMakeRequest()) {
             Log::warning('Giphy: Circuit breaker impidió la llamada API', ['id' => $id]);
 
-            // Si usamos fallback, intentar usar caché aunque esté expirada
             if ($this->config->useFallback()) {
                 $cachedGif = $this->cacheService->getCachedGif($id);
                 if ($cachedGif !== null) {
@@ -145,25 +134,20 @@ class GiphyApiClient implements GiphyServiceInterface
                 }
             }
 
-            // Si no hay datos en caché, lanzar excepción
             throw new GiphyRequestException('Servicio temporalmente no disponible');
         }
 
         try {
-            // Intentar hacer la llamada a la API
             $response = $this->httpClient->get('/gifs/' . $id, [
                 'api_key' => $this->config->getApiKey(),
             ]);
 
-            // Transformar la respuesta
             $gif = $this->transformer->transformGetByIdResponse($response);
 
-            // Guardar en caché
             if ($this->config->useCache()) {
                 $this->cacheService->cacheGif($id, $gif);
             }
 
-            // Registrar llamada exitosa
             $this->circuitBreaker->recordSuccess();
 
             return $gif->toArray();
@@ -181,13 +165,10 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     private function handleSearchException(Throwable $exception, string $query, int $limit, int $offset): array
     {
-        // Registrar el error
         $this->handleException($exception, "Error al buscar GIFs: $query");
 
-        // Registrar en circuit breaker
         $this->circuitBreaker->recordFailure($exception->getMessage());
 
-        // Si usamos fallback, intentar usar caché aunque esté expirada
         if ($this->config->useFallback()) {
             $cachedResults = $this->cacheService->getCachedSearchResults($query, $limit, $offset);
             if ($cachedResults !== null) {
@@ -200,7 +181,6 @@ class GiphyApiClient implements GiphyServiceInterface
             }
         }
 
-        // Si no hay datos en caché, propagar la excepción
         throw $this->normalizeException($exception);
     }
 
@@ -213,13 +193,10 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     private function handleGetByIdException(Throwable $exception, string $id): array
     {
-        // Registrar el error
         $this->handleException($exception, "Error al obtener GIF por ID: $id");
 
-        // Registrar en circuit breaker
         $this->circuitBreaker->recordFailure($exception->getMessage());
 
-        // Si usamos fallback, intentar usar caché aunque esté expirada
         if ($this->config->useFallback()) {
             $cachedGif = $this->cacheService->getCachedGif($id);
             if ($cachedGif !== null) {
@@ -232,7 +209,6 @@ class GiphyApiClient implements GiphyServiceInterface
             }
         }
 
-        // Si no hay datos en caché, propagar la excepción
         throw $this->normalizeException($exception);
     }
 
@@ -241,20 +217,16 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     private function handleException(Throwable $exception, string $context): void
     {
-        // Determinar la severidad del error
         $logLevel = 'error';
 
-        // Si es un error 404, usar nivel warning
         if ($exception instanceof GiphyNotFoundException) {
             $logLevel = 'warning';
         }
 
-        // Si es un error de conexión, podría ser un problema temporal
         if ($exception instanceof ConnectionException) {
             $logLevel = 'warning';
         }
 
-        // Registrar información detallada sobre el error
         Log::$logLevel("GIPHY API Error: $context", [
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
@@ -268,17 +240,14 @@ class GiphyApiClient implements GiphyServiceInterface
      */
     private function normalizeException(Throwable $exception): GiphyApiException
     {
-        // Si ya es una excepción del dominio, devolverla directamente
         if ($exception instanceof GiphyApiException) {
             return $exception;
         }
 
-        // Si es un error de conexión, convertirlo en GiphyRequestException
         if ($exception instanceof ConnectionException) {
             return new GiphyRequestException('Error de conexión con la API: ' . $exception->getMessage(), 0, $exception);
         }
 
-        // Si es un error de HTTP, convertirlo en la excepción apropiada
         if ($exception instanceof RequestException) {
             $statusCode = $exception->getCode();
 
@@ -293,7 +262,6 @@ class GiphyApiClient implements GiphyServiceInterface
             return new GiphyRequestException('Error en la petición: ' . $exception->getMessage(), $statusCode, $exception);
         }
 
-        // Para cualquier otra excepción, convertirla en GiphyRequestException
         return new GiphyRequestException($exception->getMessage(), (int) $exception->getCode(), $exception);
     }
 }

@@ -10,7 +10,6 @@ use App\Domain\ValueObjects\Email;
 use App\Domain\ValueObjects\Password;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use DateTime;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Collection;
 
 final class EloquentUserRepository implements UserRepositoryInterface
@@ -23,7 +22,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
     {
         $eloquentUser = $this->model->find($id);
 
-        if (!$eloquentUser) {
+        if (! $eloquentUser) {
             return null;
         }
 
@@ -34,7 +33,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
     {
         $eloquentUser = $this->model->where('email', (string) $email)->first();
 
-        if (!$eloquentUser) {
+        if (! $eloquentUser) {
             return null;
         }
 
@@ -61,7 +60,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
     {
         $eloquentUser = $this->model->find($user->id());
 
-        if (!$eloquentUser) {
+        if (! $eloquentUser) {
             throw new \RuntimeException('Usuario no encontrado');
         }
 
@@ -81,7 +80,7 @@ final class EloquentUserRepository implements UserRepositoryInterface
     {
         $eloquentUser = $this->model->find($id);
 
-        if (!$eloquentUser) {
+        if (! $eloquentUser) {
             throw new \RuntimeException('Usuario no encontrado');
         }
 

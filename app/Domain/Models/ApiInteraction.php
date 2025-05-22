@@ -78,4 +78,4 @@ class ApiInteraction extends Entity
     {
         return $this->updatedAt;
     }
-} 
+}

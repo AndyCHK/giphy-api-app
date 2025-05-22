@@ -22,7 +22,7 @@ class UserController
     {
         try {
             $users = $this->userRepository->all();
-            
+
             $formattedUsers = $users->map(function ($user) {
                 return [
                     'id' => $user->id,
@@ -31,22 +31,22 @@ class UserController
                     'created_at' => $user->created_at->format('Y-m-d H:i:s'),
                 ];
             });
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $formattedUsers,
-                'count' => $formattedUsers->count()
+                'count' => $formattedUsers->count(),
             ]);
         } catch (\Throwable $e) {
             Log::error('Error al obtener usuarios', [
                 'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener los usuarios',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

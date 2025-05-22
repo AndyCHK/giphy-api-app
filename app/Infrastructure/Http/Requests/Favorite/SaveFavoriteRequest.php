@@ -29,7 +29,7 @@ class SaveFavoriteRequest extends FormRequest
             //'alias' => 'required|string|max:255',
             'gif_id' => 'required|string', // Aceptamos el ID alfanumérico
             'alias' => 'required|string',
-            'user_id' => 'required|numeric'
+            'user_id' => 'required|numeric',
         ];
     }
 

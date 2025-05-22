@@ -12,4 +12,4 @@ final class UserAlreadyExistsException extends DomainException
     {
         parent::__construct("El usuario con email {$email} ya existe");
     }
-} 
+}

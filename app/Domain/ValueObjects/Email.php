@@ -18,7 +18,7 @@ final class Email implements ValueObject
 
     private function validate(string $email): void
     {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Email inválido');
         }
     }
@@ -30,7 +30,7 @@ final class Email implements ValueObject
 
     public function equals(ValueObject $other): bool
     {
-        if (!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 
@@ -41,4 +41,4 @@ final class Email implements ValueObject
     {
         return $this->value;
     }
-} 
+}

@@ -20,13 +20,13 @@ class GifDTOTest extends TestCase
             'url' => 'https://giphy.com/gifs/test123',
             'images' => [
                 'original' => [
-                    'url' => 'https://media.giphy.com/media/test123/giphy.gif'
-                ]
+                    'url' => 'https://media.giphy.com/media/test123/giphy.gif',
+                ],
             ],
             'username' => 'testuser',
             'source' => 'testsource',
             'rating' => 'g',
-            'import_datetime' => '2021-01-01 00:00:00'
+            'import_datetime' => '2021-01-01 00:00:00',
         ];
 
         // Crear el DTO
@@ -53,7 +53,7 @@ class GifDTOTest extends TestCase
             'id' => 'test123',
             'title' => 'Test Gif',
             'url' => 'https://giphy.com/gifs/test123',
-            'images' => []
+            'images' => [],
         ];
 
         $gif = GifDTO::fromArray($data);
@@ -62,7 +62,7 @@ class GifDTOTest extends TestCase
         $this->assertEquals('Test Gif', $gif->title);
         $this->assertEquals('https://giphy.com/gifs/test123', $gif->url);
         $this->assertEquals([], $gif->images);
-        
+
         $this->assertNull($gif->username);
         $this->assertNull($gif->source);
         $this->assertNull($gif->rating);
@@ -101,8 +101,8 @@ class GifDTOTest extends TestCase
             url: 'https://giphy.com/gifs/test123',
             images: [
                 'original' => [
-                    'url' => 'https://media.giphy.com/media/test123/giphy.gif'
-                ]
+                    'url' => 'https://media.giphy.com/media/test123/giphy.gif',
+                ],
             ],
             username: 'testuser',
             source: 'testsource',
@@ -118,8 +118,8 @@ class GifDTOTest extends TestCase
             'url' => 'https://giphy.com/gifs/test123',
             'images' => [
                 'original' => [
-                    'url' => 'https://media.giphy.com/media/test123/giphy.gif'
-                ]
+                    'url' => 'https://media.giphy.com/media/test123/giphy.gif',
+                ],
             ],
             'username' => 'testuser',
             'source' => 'testsource',
@@ -129,4 +129,4 @@ class GifDTOTest extends TestCase
 
         $this->assertEquals($expected, $array);
     }
-} 
+}

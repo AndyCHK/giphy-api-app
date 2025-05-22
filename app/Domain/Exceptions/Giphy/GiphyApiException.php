@@ -12,4 +12,4 @@ class GiphyApiException extends Exception
     {
         parent::__construct("Error en la API de GIPHY: $message", $code);
     }
-} 
+}

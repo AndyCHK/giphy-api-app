@@ -6,10 +6,8 @@ namespace App\Infrastructure\Auth;
 
 use App\Domain\Models\User;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Passport\Token;
-use Laravel\Passport\TokenRepository;
 
 class TokenService
 {
@@ -22,12 +20,12 @@ class TokenService
     {
         $eloquentUser = EloquentUser::where('email', (string) $domainUser->email())->first();
 
-        if (!$eloquentUser) {
+        if (! $eloquentUser) {
             throw new \RuntimeException('Usuario no encontrado en la base de datos');
         }
 
         $tokenResult = $eloquentUser->createToken($tokenName);
-        
+
         return $tokenResult->accessToken;
     }
 
@@ -42,55 +40,55 @@ class TokenService
             if (count($parts) !== 3) {
                 return [
                     'valid' => false,
-                    'error' => 'El token no tiene un formato JWT válido'
+                    'error' => 'El token no tiene un formato JWT válido',
                 ];
             }
 
             $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
 
-            if (!$payload) {
+            if (! $payload) {
                 return [
                     'valid' => false,
-                    'error' => 'No se pudo decodificar el payload del token'
+                    'error' => 'No se pudo decodificar el payload del token',
                 ];
             }
 
             if (isset($payload['exp']) && $payload['exp'] < time()) {
                 return [
                     'valid' => false,
-                    'error' => 'El token ha expirado'
+                    'error' => 'El token ha expirado',
                 ];
             }
 
-            if (!isset($payload['jti'])) {
+            if (! isset($payload['jti'])) {
                 return [
                     'valid' => false,
-                    'error' => 'El token no tiene un identificador único (jti)'
+                    'error' => 'El token no tiene un identificador único (jti)',
                 ];
             }
 
             $dbToken = Token::find($payload['jti']);
 
-            if (!$dbToken) {
+            if (! $dbToken) {
                 return [
                     'valid' => false,
-                    'error' => 'El token no está registrado en la base de datos'
+                    'error' => 'El token no está registrado en la base de datos',
                 ];
             }
 
             if ($dbToken->revoked) {
                 return [
                     'valid' => false,
-                    'error' => 'El token ha sido revocado'
+                    'error' => 'El token ha sido revocado',
                 ];
             }
 
             $user = EloquentUser::find($dbToken->user_id);
 
-            if (!$user) {
+            if (! $user) {
                 return [
                     'valid' => false,
-                    'error' => 'No se encontró el usuario asociado al token'
+                    'error' => 'No se encontró el usuario asociado al token',
                 ];
             }
 
@@ -99,17 +97,17 @@ class TokenService
                 'user_id' => $user->id,
                 'token_id' => $dbToken->id,
                 'client_id' => $dbToken->client_id,
-                'jti' => $payload['jti']
+                'jti' => $payload['jti'],
             ];
 
         } catch (\Exception $e) {
             Log::channel('auth')->error('Error al verificar token', [
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
 
             return [
                 'valid' => false,
-                'error' => 'Error al verificar el token: ' . $e->getMessage()
+                'error' => 'Error al verificar el token: ' . $e->getMessage(),
             ];
         }
     }

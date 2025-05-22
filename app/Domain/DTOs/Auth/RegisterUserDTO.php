@@ -23,4 +23,4 @@ final class RegisterUserDTO
             roles: $data['roles'] ?? []
         );
     }
-} 
+}

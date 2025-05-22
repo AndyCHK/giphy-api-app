@@ -40,4 +40,4 @@ class EloquentApiInteraction extends Model
     {
         return $this->belongsTo(EloquentUser::class, 'user_id');
     }
-} 
+}

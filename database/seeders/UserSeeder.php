@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Domain\ValueObjects\Email;
 use App\Domain\ValueObjects\Password;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use Illuminate\Database\Seeder;

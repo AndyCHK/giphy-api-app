@@ -10,4 +10,4 @@ class GiphyNotFoundException extends GiphyApiException
     {
         parent::__construct($message, $code, $previous);
     }
-} 
+}

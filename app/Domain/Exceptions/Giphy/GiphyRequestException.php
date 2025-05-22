@@ -10,4 +10,4 @@ class GiphyRequestException extends GiphyApiException
     {
         parent::__construct($message, $code, $previous);
     }
-} 
+}

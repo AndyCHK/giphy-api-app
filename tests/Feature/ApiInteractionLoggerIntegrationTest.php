@@ -29,7 +29,7 @@ class ApiInteractionLoggerIntegrationTest extends TestCase
         $this->user = EloquentUser::create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => bcrypt('password')
+            'password' => bcrypt('password'),
         ]);
 
         // Configurar los parámetros de truncado
@@ -42,7 +42,7 @@ class ApiInteractionLoggerIntegrationTest extends TestCase
     {
         // Autenticar usuario
         Passport::actingAs($this->user);
-        
+
         // Configurar expectativas
         $this->apiInteractionServiceMock->shouldReceive('registerInteraction')
             ->once()
@@ -80,7 +80,7 @@ class ApiInteractionLoggerIntegrationTest extends TestCase
         // Ejecutar la solicitud
         $this->postJson('/api/auth/login', [
             'email' => 'invalido@example.com',
-            'password' => 'contraseñaincorrecta'
+            'password' => 'contraseñaincorrecta',
         ]);
     }
 
@@ -89,10 +89,10 @@ class ApiInteractionLoggerIntegrationTest extends TestCase
     {
         // Autenticar usuario
         Passport::actingAs($this->user);
-        
+
         // Generar una respuesta grande
         $largeResponse = ['data' => str_repeat('x', 200)];
-        
+
         // Configurar expectativas
         $this->apiInteractionServiceMock->shouldReceive('registerInteraction')
             ->once()
@@ -127,4 +127,4 @@ class ApiInteractionLoggerIntegrationTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}
