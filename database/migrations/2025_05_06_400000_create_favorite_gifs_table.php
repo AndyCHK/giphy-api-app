@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('favorite_gifs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
-            $table->string('gif_id');
+            $table->bigInteger('gif_id');
             $table->string('alias')->nullable();
             $table->timestamps();
 
