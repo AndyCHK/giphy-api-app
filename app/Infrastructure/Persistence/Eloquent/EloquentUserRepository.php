@@ -11,7 +11,7 @@ use App\Domain\ValueObjects\Password;
 use App\Infrastructure\Persistence\Eloquent\Models\EloquentUser;
 use DateTime;
 use Illuminate\Support\Str;
-use mysql_xdevapi\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 final class EloquentUserRepository implements UserRepositoryInterface
 {
@@ -88,6 +88,11 @@ final class EloquentUserRepository implements UserRepositoryInterface
         $eloquentUser->delete();
     }
 
+    public function all(): ?Collection
+    {
+        return $this->model->all();
+    }
+
     private function toDomainModel(EloquentUser $eloquentUser): User
     {
         return new User(
@@ -100,13 +105,6 @@ final class EloquentUserRepository implements UserRepositoryInterface
             new DateTime($eloquentUser->created_at->format('Y-m-d H:i:s')),
             new DateTime($eloquentUser->updated_at->format('Y-m-d H:i:s'))
         );
-    }
-
-    private function list() //: Collection
-    {
-        $users = EloquentUser::all();
-        return $users;
-
     }
 
     private function getPasswordFromUser(User $user): string
