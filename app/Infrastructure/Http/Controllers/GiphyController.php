@@ -12,6 +12,27 @@ use App\Infrastructure\Http\Requests\Giphy\SearchRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @OA\Info(
+ *     title="API Giphy",
+ *     version="1.0.0",
+ *     description="API para interactuar con Giphy y gestionar favoritos",
+ *     @OA\Contact(
+ *         email="andres.echavalete.dev@gmail.com",
+ *         name="Andres Echavalete"
+ *     )
+ * )
+ *
+ * @OA\Server(
+ *     url=L5_SWAGGER_CONST_HOST,
+ *     description="API Server"
+ * )
+ * 
+ * @OA\Tag(
+ *     name="Giphy",
+ *     description="Operaciones con la API de Giphy"
+ * )
+ */
 readonly class GiphyController
 {
     /**
@@ -23,6 +44,55 @@ readonly class GiphyController
     }
 
     /**
+     * Buscar GIFs en Giphy
+     * 
+     * @OA\Get(
+     *     path="/api/gifs/search",
+     *     tags={"Giphy"},
+     *     summary="Buscar GIFs por término",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="query",
+     *         in="query",
+     *         description="Término de búsqueda",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Número máximo de resultados",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=25)
+     *     ),
+     *     @OA\Parameter(
+     *         name="offset",
+     *         in="query",
+     *         description="Índice para paginación",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=0)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de GIFs",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
+     *             @OA\Property(property="pagination", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=503,
+     *         description="Servicio no disponible",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(property="error_code", type="string", example="SERVICE_UNAVAILABLE")
+     *         )
+     *     )
+     * )
+     * 
      * @param SearchRequest $request
      * @return JsonResponse
      */
@@ -105,6 +175,40 @@ readonly class GiphyController
     }
 
     /**
+     * Obtener un GIF por su ID
+     * 
+     * @OA\Get(
+     *     path="/api/gifs/{id}",
+     *     tags={"Giphy"},
+     *     summary="Obtener GIF por ID",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID del GIF",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="GIF encontrado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="GIF no encontrado",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="GIF no encontrado"),
+     *             @OA\Property(property="error_code", type="string", example="NOT_FOUND")
+     *         )
+     *     )
+     * )
+     * 
      * @param string $id
      * @return JsonResponse
      */

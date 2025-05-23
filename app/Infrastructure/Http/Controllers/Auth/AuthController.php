@@ -19,8 +19,52 @@ use Illuminate\Support\Facades\Log;
 use Laravel\Passport\RefreshTokenRepository;
 use Laravel\Passport\TokenRepository;
 
+/**
+ * @OA\Tag(
+ *     name="Auth",
+ *     description="Operaciones de autenticación"
+ * )
+ *  
+ * @OA\Server(
+ *     url=L5_SWAGGER_CONST_HOST,
+ *     description="API Server"
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="UserDTO",
+ *     type="object",
+ *     @OA\Property(property="id", type="string", example="1"),
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="email", type="string", example="john.doe@example.com"),
+ *     @OA\Property(property="roles", type="array", @OA\Items(type="string", example="admin"))
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="RegisterUserDTO",
+ *     type="object",
+ *     @OA\Property(property="name", type="string", example="John Doe"),
+ *     @OA\Property(property="email", type="string", example="john.doe@example.com"),
+ *     @OA\Property(property="password", type="string", example="Password123"),
+ *     @OA\Property(property="password_confirmation", type="string", example="Password123")
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="LoginUserDTO",
+ *     type="object",
+ *     @OA\Property(property="email", type="string", example="john.doe@example.com"),
+ *     @OA\Property(property="password", type="string", example="Password123")
+ * )
+ */
+
 final class AuthController extends Controller
 {
+    /**
+     * @param RegisterUserUseCase $registerUserUseCase
+     * @param LoginUserUseCase $loginUserUseCase
+     * @param TokenRepository $tokenRepository
+     * @param RefreshTokenRepository $refreshTokenRepository
+     * @param TokenService $tokenService
+     */
     public function __construct(
         private readonly RegisterUserUseCase $registerUserUseCase,
         private readonly LoginUserUseCase $loginUserUseCase,
@@ -31,6 +75,24 @@ final class AuthController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/auth/register",
+     *     summary="Registrar un nuevo usuario",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/RegisterUserDTO")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuario registrado exitosamente"
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Usuario ya existe"
+     *     )
+     * )
+     * 
      * @param RegisterRequest $request
      * @return JsonResponse
      */
@@ -66,6 +128,24 @@ final class AuthController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/auth/login",
+     *     summary="Iniciar sesión",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/LoginUserDTO")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inicio de sesión exitoso"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciales inválidas"
+     *     )
+     * )
+     * 
      * @param LoginRequest $request
      * @return JsonResponse
      */
@@ -101,6 +181,20 @@ final class AuthController extends Controller
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/auth/logout",
+     *     summary="Cerrar sesión",
+     *     tags={"Auth"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cierre de sesión exitoso"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No se proporcionó token de autenticación"
+     *     )
+     * )
+     * 
      * @return JsonResponse
      */
     public function logout(): JsonResponse
@@ -145,8 +239,4 @@ final class AuthController extends Controller
         }
     }
 
-    public function list(): ?JsonResponse
-    {
-        return null;
-    }
 }

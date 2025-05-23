@@ -14,6 +14,22 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * @OA\Tag(
+ *     name="Favoritos",
+ *     description="Operaciones con GIFs favoritos"
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="FavoriteDTO",
+ *     type="object",
+ *     @OA\Property(property="id", type="integer", example=123),
+ *     @OA\Property(property="gif_id", type="string", example="xT9IgDEI1iZyb2wqo8"),
+ *     @OA\Property(property="alias", type="string", example="Mi GIF favorito"),
+ *     @OA\Property(property="original_gif_id", type="string", example="xT9IgDEI1iZyb2wqo8"),
+ *     @OA\Property(property="created_at", type="string", format="date-time")
+ * )
+ */
 readonly class FavoriteController
 {
     /**
@@ -79,6 +95,35 @@ readonly class FavoriteController
     }
 
     /**
+     * Guardar un GIF como favorito
+     * 
+     * @OA\Post(
+     *     path="/api/favorites",
+     *     summary="Guardar un GIF como favorito",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="gif_id", type="string", example="xT9IgDEI1iZyb2wqo8"),
+     *             @OA\Property(property="alias", type="string", example="Mi GIF favorito"),
+     *             @OA\Property(property="user_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="GIF guardado como favorito (sin contenido)"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autorizado"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno del servidor"
+     *     )
+     * )
+     * 
      * @param Request $request
      * @param GiphyIdAdapterServiceInterface $adapter
      * @return Response
@@ -105,6 +150,52 @@ readonly class FavoriteController
     }
 
     /**
+     * Obtener lista de GIFs favoritos
+     * 
+     * @OA\Get(
+     *     path="/api/favorites",
+     *     summary="Obtener lista de GIFs favoritos",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="limit",
+     *         in="query",
+     *         description="Número máximo de resultados",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=25)
+     *     ),
+     *     @OA\Parameter(
+     *         name="offset",
+     *         in="query",
+     *         description="Índice para paginación",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=0)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de favoritos",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/FavoriteDTO")
+     *             ),
+     *             @OA\Property(
+     *                 property="pagination",
+     *                 type="object",
+     *                 @OA\Property(property="count", type="integer"),
+     *                 @OA\Property(property="offset", type="integer")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autorizado"
+     *     )
+     * )
+     * 
      * @param Request $request
      * @param GiphyIdAdapterServiceInterface $adapter
      * @return JsonResponse
@@ -157,6 +248,42 @@ readonly class FavoriteController
     }
 
     /**
+     * Eliminar un GIF de favoritos
+     * 
+     * @OA\Delete(
+     *     path="/api/favorites/{id}",
+     *     summary="Eliminar un GIF de favoritos",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID del GIF",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="GIF eliminado de favoritos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="GIF eliminado de favoritos")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="GIF no encontrado en favoritos",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="GIF no encontrado en favoritos")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autorizado"
+     *     )
+     * )
+     * 
      * @param string $id
      * @param GiphyIdAdapterServiceInterface $adapter
      * @return JsonResponse
