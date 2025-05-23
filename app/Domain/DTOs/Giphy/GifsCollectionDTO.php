@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\DTOs\Giphy;
 
-class GifsCollectionDTO
+readonly class GifsCollectionDTO
 {
     /**
      * @param GifDTO[] $gifs
      */
     public function __construct(
-        public readonly array $gifs,
-        public readonly int $totalCount,
-        public readonly int $offset,
-        public readonly int $count
+        public array $gifs,
+        public int   $totalCount,
+        public int   $offset,
+        public int   $count
     ) {
     }
 
@@ -33,8 +33,8 @@ class GifsCollectionDTO
         return new self(
             gifs: $gifs,
             totalCount: $pagination['total_count'] ?? count($gifs),
-            count: $pagination['count'] ?? count($gifs),
-            offset: $pagination['offset'] ?? 0
+            offset: $pagination['offset'] ?? 0,
+            count: $pagination['count'] ?? count($gifs)
         );
     }
 

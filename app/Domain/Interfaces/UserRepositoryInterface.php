@@ -8,8 +8,6 @@ use App\Domain\Models\User;
 use App\Domain\ValueObjects\Email;
 use Illuminate\Database\Eloquent\Collection;
 
-//use Ramsey\Collection\Collection;
-
 interface UserRepositoryInterface
 {
     public function findById(string $id): ?User;
